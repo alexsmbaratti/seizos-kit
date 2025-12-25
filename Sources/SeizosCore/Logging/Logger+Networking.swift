@@ -31,17 +31,13 @@ public extension Logger {
     }
     
     /// Logs a network error and optional HTTP response for a failed network request.
-    func logRequestError(response: URLResponse?, requestError: Error?) {
-        if let requestError {
-            error(
-                "Network request failed with error: \(requestError.localizedDescription, privacy: .sensitive)"
-            )
-            
-            if let httpResponse = response as? HTTPURLResponse {
-                error("HTTP Status Code: \(httpResponse.statusCode)")
-            }
-        } else {
-            error("Unknown network error")
+    func logNetworkError(requestError: Error, response: URLResponse?) {
+        error(
+            "Network request failed with error: \(requestError.localizedDescription, privacy: .sensitive)"
+        )
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            error("HTTP Status Code: \(httpResponse.statusCode)")
         }
     }
 }
