@@ -16,9 +16,17 @@ import SwiftUI
 ///
 /// - Parameter text: A localized string key used as the heading’s title.
 public struct Heading: View {
-    private let text: LocalizedStringKey
+    private let text: Text
 
-    public init(_ text: LocalizedStringKey) {
+    public init(_ key: LocalizedStringKey) {
+        self.text = Text(key)
+    }
+    
+    public init(_ string: String) {
+        self.text = Text(string)
+    }
+    
+    public init(_ text: Text) {
         self.text = text
     }
 

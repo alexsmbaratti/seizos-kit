@@ -20,6 +20,10 @@ public struct LeadingText: View {
     public init(_ string: String) {
         self.text = Text(string)
     }
+    
+    public init(_ text: Text) {
+        self.text = text
+    }
 
     public var body: some View {
         HStack {
