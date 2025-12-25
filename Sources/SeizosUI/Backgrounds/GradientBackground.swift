@@ -47,7 +47,7 @@ public struct GradientBackground: ViewModifier {
                     )
 #endif
                 }
-                    .ignoresSafeArea(edges: [.top, .leading, .trailing])
+                    .ignoresSafeArea()
             )
     }
 }
