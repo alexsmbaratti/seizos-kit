@@ -1,0 +1,47 @@
+//
+//  CenteredHeading.swift
+//  SeizosKit
+//
+//  Created by Alex Baratti on 12/25/25.
+//
+
+import SwiftUI
+
+/// A bold, leading-aligned heading view for section titles.
+///
+/// `CenteredHeading` displays localized text using the `.title2` font
+/// and bold weight, centered horizontally with trailing space. It applies
+/// the appropriate accessibility header trait so assistive technologies
+/// recognize it as a section heading.
+///
+/// - Parameter text: A localized string key used as the heading’s title.
+public struct CenteredHeading: View {
+    private let text: Text
+
+    public init(_ key: LocalizedStringKey) {
+        self.text = Text(key)
+    }
+    
+    public init(_ string: String) {
+        self.text = Text(string)
+    }
+    
+    public init(_ text: Text) {
+        self.text = text
+    }
+
+    public var body: some View {
+        CenteredText(text)
+            .font(.title2)
+            .fontWeight(.bold)
+            .accessibilityAddTraits(.isHeader)
+    }
+}
+
+#Preview {
+    VStack {
+        CenteredHeading("Heading")
+        Spacer()
+    }
+    .padding()
+}
