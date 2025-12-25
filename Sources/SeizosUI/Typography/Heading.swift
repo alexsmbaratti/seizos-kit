@@ -23,12 +23,17 @@ public struct Heading: View {
     }
 
     public var body: some View {
-        HStack {
-            Text(text)
-                .font(.title2)
-                .fontWeight(.bold)
-                .accessibilityAddTraits(.isHeader)
-            Spacer()
-        }
+        LeadingText(text)
+            .font(.title2)
+            .fontWeight(.bold)
+            .accessibilityAddTraits(.isHeader)
     }
+}
+
+#Preview {
+    VStack {
+        Heading("Heading")
+        Spacer()
+    }
+    .padding()
 }
