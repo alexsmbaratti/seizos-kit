@@ -71,7 +71,7 @@ public extension View {
     NavigationStack {
         ScrollView {
             Group {
-                Heading("This is a test of the gradient background.")
+                LeadingHeading("This is a test of the gradient background.")
             }
             .padding([.leading, .bottom, .trailing])
         }
@@ -93,7 +93,7 @@ public extension View {
     }, detail: {
         ScrollView {
             Group {
-                Heading("This is a test of the gradient background.")
+                LeadingHeading("This is a test of the gradient background.")
             }
             .padding([.leading, .bottom, .trailing])
         }
