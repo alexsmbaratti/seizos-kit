@@ -11,15 +11,19 @@ import SwiftUI
 ///
 /// Font can be adjusted with the `.font()` modifier.
 public struct LeadingText: View {
-    private let text: LocalizedStringKey
+    private let text: Text
 
-    public init(_ text: LocalizedStringKey) {
-        self.text = text
+    public init(_ key: LocalizedStringKey) {
+        self.text = Text(key)
+    }
+    
+    public init(_ string: String) {
+        self.text = Text(string)
     }
 
     public var body: some View {
         HStack {
-            Text(text)
+            text
                 .multilineTextAlignment(.leading)
             Spacer()
         }
