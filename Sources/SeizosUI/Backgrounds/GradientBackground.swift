@@ -67,11 +67,11 @@ public extension View {
     }
 }
 
-#Preview("Gradient Background") {
+#Preview("Simple View") {
     NavigationStack {
         ScrollView {
             Group {
-                Heading("This is a test.")
+                Heading("This is a test of the gradient background.")
             }
             .padding([.leading, .bottom, .trailing])
         }
@@ -85,4 +85,26 @@ public extension View {
         }
         .gradientBackground(color: .red)
     }
+}
+
+#Preview("NavigationSplitView") {
+    NavigationSplitView(sidebar: {
+        Text("This preview is intended for devices that display both the sidebar and detail views of a NavigationSplitView. If only this view is displayed, ignore this preview for this device.")
+    }, detail: {
+        ScrollView {
+            Group {
+                Heading("This is a test of the gradient background.")
+            }
+            .padding([.leading, .bottom, .trailing])
+        }
+        .navigationTitle("Hello, world!")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing, content: {
+                Button(action: {}, label: {
+                    Label("Test", systemImage: "star")
+                })
+            })
+        }
+        .gradientBackground(color: .red)
+    })
 }
