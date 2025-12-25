@@ -40,16 +40,14 @@ public struct GradientBackground: ViewModifier {
 #else
             .background(
                 Group {
-                    if #available(iOS 26.0, macOS 26.0) {
-                        LinearGradient(
-                            gradient: Gradient(colors: [
-                                color.opacity(colorScheme == .light ? 1 : 0.5),
-                                Color.clear
-                            ]),
-                            startPoint: .top,
-                            endPoint: .center
-                        )
-                    }
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            color.opacity(colorScheme == .light ? 1 : 0.5),
+                            Color.clear
+                        ]),
+                        startPoint: .top,
+                        endPoint: .center
+                    )
                 }
                     .ignoresSafeArea(edges: [.top, .leading, .trailing])
             )
@@ -60,9 +58,10 @@ public struct GradientBackground: ViewModifier {
 public extension View {
     /// Applies a platform-adaptive accent gradient background to the view.
     ///
-    /// watchOS will have the gradient take up the entire screen.
-    /// visionOS will not have a gradient applied to match visionOS aesthetics.
-    /// Other platforms (iOS, macOS) will have the gradient take up about half of the screen.
+    /// Platform behavior:
+    /// - watchOS: The gradient fills the entire screen.
+    /// - visionOS: No gradient is applied, to better match visionOS aesthetics.
+    /// - Other platforms (iOS, macOS): The gradient extends approximately halfway down the screen.
     ///
     /// - Parameter color: The base color of the gradient.
     /// - Returns: A view with the accent gradient background applied.
