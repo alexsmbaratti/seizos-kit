@@ -5,6 +5,8 @@
 //  Created by Alex Baratti on 12/22/25.
 //
 
+import SwiftUI
+
 public struct GradientBackground: ViewModifier {
     private let color: Color
     
@@ -19,11 +21,11 @@ public struct GradientBackground: ViewModifier {
     
     public func body(content: Content) -> some View {
         content
-#if os(visionOS)
-        // visionOS should not use gradient backgrounds
-#elseif os(watchOS)
             .background(
                 Group {
+#if os(visionOS)
+                    // visionOS: no gradient
+#elseif os(watchOS)
                     if !isLuminanceReduced {
                         LinearGradient(
                             gradient: Gradient(colors: [
@@ -34,12 +36,7 @@ public struct GradientBackground: ViewModifier {
                             endPoint: .bottom
                         )
                     }
-                }
-                    .ignoresSafeArea()
-            )
 #else
-            .background(
-                Group {
                     LinearGradient(
                         gradient: Gradient(colors: [
                             color.opacity(colorScheme == .light ? 1 : 0.5),
@@ -48,10 +45,10 @@ public struct GradientBackground: ViewModifier {
                         startPoint: .top,
                         endPoint: .center
                     )
+#endif
                 }
                     .ignoresSafeArea(edges: [.top, .leading, .trailing])
             )
-#endif
     }
 }
 
@@ -67,5 +64,25 @@ public extension View {
     /// - Returns: A view with the accent gradient background applied.
     func gradientBackground(color: Color) -> some View {
         self.modifier(GradientBackground(color: color))
+    }
+}
+
+#Preview("Gradient Background") {
+    NavigationStack {
+        ScrollView {
+            Group {
+                Heading("This is a test.")
+            }
+            .padding([.leading, .bottom, .trailing])
+        }
+        .navigationTitle("Hello, world!")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing, content: {
+                Button(action: {}, label: {
+                    Label("Test", systemImage: "star")
+                })
+            })
+        }
+        .gradientBackground(color: .red)
     }
 }
