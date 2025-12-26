@@ -6,9 +6,9 @@ import PackageDescription
 let package = Package(
     name: "SeizosKit",
     platforms: [
-        .iOS(.v17),
-        .macOS(.v15),
-        .watchOS(.v11),
+        .iOS(.v16),
+        .macOS(.v14),
+        .watchOS(.v10),
         .visionOS(.v1)
     ],
     products: [
