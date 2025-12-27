@@ -12,23 +12,21 @@ struct AboutView: View {
     private let appVersion: String
     private let buildNumber: String
     private let appIcon: Image
-    private let developerName: String
+    private let credits: [Credit]
     
-    public init(appName: LocalizedStringKey, appVersion: String, buildNumber: String, appIcon: Image, developerName: String) {
+    public init(appName: LocalizedStringKey, appVersion: String, buildNumber: String, appIcon: Image, credits: [Credit]) {
         self.appName = appName
         self.appVersion = appVersion
         self.buildNumber = buildNumber
         self.appIcon = appIcon
-        self.developerName = developerName
+        self.credits = credits
     }
     
     var body: some View {
         List {
             AppInfoSection(appName: appName, appVersion: appVersion, buildNumber: buildNumber, appIcon: appIcon)
             
-            Section("settings-credits-header") {
-                LabeledContent("Developer", value: developerName)
-            }
+            CreditsSection(credits: credits)
         }
     }
 }
@@ -84,6 +82,28 @@ struct AppInfoSection: View {
     }
 }
 
+struct Credit: Identifiable {
+    let id = UUID()
+    let name: String
+    let role: LocalizedStringKey
+}
+
+struct CreditsSection: View {
+    private let credits: [Credit]
+
+    public init(credits: [Credit]) {
+        self.credits = credits
+    }
+    
+    var body: some View {
+        Section("settings-credits-header") {
+            ForEach(credits) { credit in
+                LabeledContent(credit.role, value: credit.name)
+            }
+        }
+    }
+}
+
 #Preview {
     NavigationStack {
         AboutView(
@@ -91,7 +111,7 @@ struct AppInfoSection: View {
             appVersion: "1.0",
             buildNumber: "1",
             appIcon: Image(systemName: "app.fill"),
-            developerName: "Alex Baratti"
+            credits: [Credit(name: "Alex Baratti", role: "Developer"), Credit(name: "Alex Baratti", role: "Designer")]
         )
         .navigationTitle("About")
     }
