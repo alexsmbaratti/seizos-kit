@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// An all-in-one declarative view for displaying information about the app, including version and credits.
 public struct AboutView: View {
     private let appName: LocalizedStringKey
     private let appVersion: String
