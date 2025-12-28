@@ -56,29 +56,26 @@ public struct AppInfoSection: View {
     
     public var body: some View {
         Section {
-            HStack {
-                Spacer()
-                VStack(spacing: 10) {
-                    appIcon
-                        .resizable()
-                        .frame(width: 80, height: 80)
-                        .shadow(radius: 4)
-                    
-                    Text(appName)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    
-                    Text(showsBuildNumber
-                         ? "\(appVersion) (\(buildNumber))"
-                         : appVersion)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .onTapGesture {
-                        showsBuildNumber = true
-                    }
+            VStack(spacing: 10) {
+                appIcon
+                    .resizable()
+                    .frame(width: 80, height: 80)
+                    .shadow(radius: 4)
+                
+                Text(appName)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                
+                Text(showsBuildNumber
+                     ? "\(appVersion) (\(buildNumber))"
+                     : appVersion)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .onTapGesture {
+                    showsBuildNumber = true
                 }
-                Spacer()
             }
+            .frame(maxWidth: .infinity, alignment: .center)
             .padding(.vertical, 20)
         }
     }
