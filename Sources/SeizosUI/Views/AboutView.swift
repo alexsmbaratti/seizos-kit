@@ -20,17 +20,19 @@ public struct AboutView: View {
     private let appVersion: String
     private let buildNumber: String
     private let appIcon: Image
-    private let creditsHeader: LocalizedStringKey
+    private let individualCreditsHeader: LocalizedStringKey
     private let individualCredits: [IndividualCredit]
+    private let dependencyCreditsHeader: LocalizedStringKey
     private let dependencyCredits: [DependencyCredit]
     
-    public init(appName: LocalizedStringKey, appVersion: String, buildNumber: String, appIcon: Image, creditsHeader: LocalizedStringKey, credits: [IndividualCredit], dependencyCredits: [DependencyCredit]) {
+    public init(appName: LocalizedStringKey, appVersion: String, buildNumber: String, appIcon: Image, individualCreditsHeader: LocalizedStringKey, credits: [IndividualCredit], dependencyCreditsHeader: LocalizedStringKey, dependencyCredits: [DependencyCredit]) {
         self.appName = appName
         self.appVersion = appVersion
         self.buildNumber = buildNumber
         self.appIcon = appIcon
-        self.creditsHeader = creditsHeader
+        self.individualCreditsHeader = individualCreditsHeader
         self.individualCredits = credits
+        self.dependencyCreditsHeader = dependencyCreditsHeader
         self.dependencyCredits = dependencyCredits
     }
     
@@ -38,14 +40,10 @@ public struct AboutView: View {
         List {
             AppInfoSection(appName: appName, appVersion: appVersion, buildNumber: buildNumber, appIcon: appIcon)
             
-            IndividualCreditsSection(header: creditsHeader, credits: individualCredits)
+            IndividualCreditsSection(header: individualCreditsHeader, credits: individualCredits)
             
             if !dependencyCredits.isEmpty {
-                Section {
-                    NavigationLink(destination: DependencyCreditsSection(credits: dependencyCredits)) {
-                        Label("settings-title-acknowledgments", systemImage: "hands.and.sparkles")
-                    }
-                }
+                DependencyCreditsSection(header: dependencyCreditsHeader, credits: dependencyCredits)
             }
         }
     }
@@ -158,24 +156,26 @@ public struct DependencyCredit: Identifiable {
 }
 
 public struct DependencyCreditsSection: View {
+    private let header: LocalizedStringKey
     private let credits: [DependencyCredit]
     
-    public init(credits: [DependencyCredit]) {
+    public init(header: LocalizedStringKey, credits: [DependencyCredit]) {
+        self.header = header
         self.credits = credits
     }
     
     public var body: some View {
-        List(credits) { item in
-            VStack {
-                LeadingText(item.name)
-                    .font(.headline)
-                LeadingText(item.description)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+        Section(header) {
+            ForEach(credits) { item in
+                VStack {
+                    LeadingText(item.name)
+                    LeadingText(item.description)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.vertical, 6)
             }
-            .padding(.vertical, 6)
         }
-        .listStyle(InsetGroupedListStyle())
     }
 }
 
@@ -186,8 +186,8 @@ public struct DependencyCreditsSection: View {
             appVersion: "1.0",
             buildNumber: "1",
             appIcon: Image(systemName: "app.fill"),
-            creditsHeader: "Credits",
-            credits: [IndividualCredit(name: "Alex Baratti", role: "Developer"), IndividualCredit(name: "Alex Baratti", role: "Designer")], dependencyCredits: [DependencyCredit(name: "SeizosKit", description: "Provides reusable UI views and utilities, including this view!", url: URL(string: "https://github.com/alexsmbaratti/seizos-kit"))]
+            individualCreditsHeader: "Credits",
+            credits: [IndividualCredit(name: "Alex Baratti", role: "Developer"), IndividualCredit(name: "Alex Baratti", role: "Designer")], dependencyCreditsHeader: "Packages", dependencyCredits: [DependencyCredit(name: "SeizosKit", description: "Provides reusable UI views and utilities, including this view!", url: URL(string: "https://github.com/alexsmbaratti/seizos-kit"))]
         )
         .navigationTitle("About")
     }
