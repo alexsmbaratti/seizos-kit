@@ -56,7 +56,7 @@ public struct AppInfoSection: View {
     
     public var body: some View {
         Section {
-            VStack(spacing: 10) {
+            VStack {
                 appIcon
                     .resizable()
                     .frame(width: 80, height: 80)
