@@ -75,7 +75,7 @@ public struct AppInfoSection: View {
                     showsBuildNumber = true
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .center)
+            .horizontallyCentered()
             .padding(.vertical, 20)
         }
     }

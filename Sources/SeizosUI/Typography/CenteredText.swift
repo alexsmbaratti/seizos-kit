@@ -26,12 +26,9 @@ public struct CenteredText: View {
     }
 
     public var body: some View {
-        HStack {
-            Spacer()
-            text
-                .multilineTextAlignment(.center)
-            Spacer()
-        }
+        text
+            .horizontallyCentered()
+            .multilineTextAlignment(.center)
     }
 }
 
