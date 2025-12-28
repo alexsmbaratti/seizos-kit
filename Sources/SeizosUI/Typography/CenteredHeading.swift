@@ -39,9 +39,7 @@ public struct CenteredHeading: View {
 }
 
 #Preview {
-    VStack {
-        CenteredHeading("Heading")
-        Spacer()
-    }
-    .padding()
+    CenteredHeading("Heading")
+        .pinnedToTop()
+        .padding()
 }

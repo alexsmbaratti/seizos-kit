@@ -35,9 +35,7 @@ public struct LeadingText: View {
 }
 
 #Preview {
-    VStack {
-        LeadingText("Hello, world!")
-        Spacer()
-    }
-    .padding()
+    LeadingText("Hello, world!")
+        .pinnedToTop()
+        .padding()
 }

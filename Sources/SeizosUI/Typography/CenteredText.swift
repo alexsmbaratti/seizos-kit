@@ -33,9 +33,7 @@ public struct CenteredText: View {
 }
 
 #Preview {
-    VStack {
-        CenteredText("Hello, world!")
-        Spacer()
-    }
-    .padding()
+    CenteredText("Hello, world!")
+        .pinnedToTop()
+        .padding()
 }

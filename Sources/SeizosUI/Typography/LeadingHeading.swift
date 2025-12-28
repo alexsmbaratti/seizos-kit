@@ -39,9 +39,7 @@ public struct LeadingHeading: View {
 }
 
 #Preview {
-    VStack {
-        LeadingHeading("Heading")
-        Spacer()
-    }
-    .padding()
+    LeadingHeading("Heading")
+        .pinnedToTop()
+        .padding()
 }
