@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AboutView: View {
+public struct AboutView: View {
     private let appName: LocalizedStringKey
     private let appVersion: String
     private let buildNumber: String
@@ -24,7 +24,7 @@ struct AboutView: View {
         self.credits = credits
     }
     
-    var body: some View {
+    public var body: some View {
         List {
             AppInfoSection(appName: appName, appVersion: appVersion, buildNumber: buildNumber, appIcon: appIcon)
             
@@ -39,14 +39,14 @@ struct AboutView: View {
 /// - Parameter appVersion: A string for the app's version number.
 /// - Parameter buildNumber: A string for the app's build number. Hidden by default. Displayed upon tapping the app's version number.
 /// - Parameter appIcon: An image for the app's icon.
-struct AppInfoSection: View {
+public struct AppInfoSection: View {
     private let appName: LocalizedStringKey
     private let appVersion: String
     private let buildNumber: String
     private let appIcon: Image
     
     @State private var showsBuildNumber = false
-
+    
     public init(appName: LocalizedStringKey, appVersion: String, buildNumber: String, appIcon: Image) {
         self.appName = appName
         self.appVersion = appVersion
@@ -54,7 +54,7 @@ struct AppInfoSection: View {
         self.appIcon = appIcon
     }
     
-    var body: some View {
+    public var body: some View {
         Section {
             HStack {
                 Spacer()
@@ -71,11 +71,11 @@ struct AppInfoSection: View {
                     Text(showsBuildNumber
                          ? "\(appVersion) (\(buildNumber))"
                          : appVersion)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .onTapGesture {
-                            showsBuildNumber = true
-                        }
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .onTapGesture {
+                        showsBuildNumber = true
+                    }
                 }
                 Spacer()
             }
@@ -84,22 +84,32 @@ struct AppInfoSection: View {
     }
 }
 
-struct Credit: Identifiable {
-    let id = UUID()
-    let name: String
-    let role: LocalizedStringKey
+public struct Credit: Identifiable {
+    public let id: UUID
+    public let name: String
+    public let role: LocalizedStringKey
+    
+    public init(
+        id: UUID = UUID(),
+        name: String,
+        role: LocalizedStringKey
+    ) {
+        self.id = id
+        self.name = name
+        self.role = role
+    }
 }
 
-struct CreditsSection: View {
+public struct CreditsSection: View {
     private let header: LocalizedStringKey
     private let credits: [Credit]
-
+    
     public init(header: LocalizedStringKey, credits: [Credit]) {
         self.header = header
         self.credits = credits
     }
     
-    var body: some View {
+    public var body: some View {
         Section(header) {
             ForEach(credits) { credit in
                 LabeledContent(credit.role, value: credit.name)
