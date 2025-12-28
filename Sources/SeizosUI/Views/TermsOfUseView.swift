@@ -8,16 +8,25 @@
 import SwiftUI
 import SeizosCore
 
-struct TermsOfUseView: View {
+/// A view for displaying terms of use for an app. Applies bold formatting for numbered headers in the provided terms of use. Also displays the provided string indicating the last update of the terms of use.
+///
+/// - Parameter termsOfUse: A string representing the terms of use (optionally with numbered headers for formatting).
+/// - Parameter lastUpdatedText: A string representing the last update of the terms of use (i.e. `Last Updated: January 1, 1970`).
+public struct TermsOfUseView: View {
     @State private var termsContent: AttributedString = AttributedString("")
     
-    let terms: String
-    let lastUpdated: Date
+    private let termsOfUse: String
+    private let lastUpdatedText: String
     
-    var body: some View {
+    public init(termsOfUse: String, lastUpdatedText: String) {
+        self.termsOfUse = termsOfUse
+        self.lastUpdatedText = lastUpdatedText
+    }
+    
+    public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text("Last Updated: \(lastUpdated.formattedLongDate())")
+                Text(lastUpdatedText)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 
@@ -27,8 +36,8 @@ struct TermsOfUseView: View {
             }
             .padding()
         }
-        .onAppear {
-            formatTermsContent(terms)
+        .task {
+            formatTermsContent(termsOfUse)
         }
     }
     
@@ -90,8 +99,9 @@ Sed sapien risus, placerat id efficitur nec, feugiat at dui. Nulla nec risus ips
 
 We reserve the right to modify or update these Terms at any time without prior notice. Continued use of Pixel Shelf following any changes indicates your acceptance of the updated Terms.
 """
+    let lastUpdatedText = "Last Updated: \(Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1))!.formattedLongDate())"
     return NavigationStack {
-        TermsOfUseView(terms: termsOfUse, lastUpdated: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1))!)
+        TermsOfUseView(termsOfUse: termsOfUse, lastUpdatedText: lastUpdatedText)
             .navigationTitle("Terms of Use")
     }
 }
