@@ -84,6 +84,11 @@ public struct AppInfoSection: View {
     }
 }
 
+/// A model representing an individual credited in an app’s credits section.
+///
+/// `Credit` is intended for UI presentation only and is typically displayed using
+/// `CreditsSection`. It pairs a person’s name with a localized role or contribution,
+/// such as “Developer” or “Designer”.
 public struct Credit: Identifiable {
     public let id: UUID
     public let name: String
