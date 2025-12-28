@@ -12,13 +12,15 @@ struct AboutView: View {
     private let appVersion: String
     private let buildNumber: String
     private let appIcon: Image
+    private let creditsHeader: LocalizedStringKey
     private let credits: [Credit]
     
-    public init(appName: LocalizedStringKey, appVersion: String, buildNumber: String, appIcon: Image, credits: [Credit]) {
+    public init(appName: LocalizedStringKey, appVersion: String, buildNumber: String, appIcon: Image, creditsHeader: LocalizedStringKey, credits: [Credit]) {
         self.appName = appName
         self.appVersion = appVersion
         self.buildNumber = buildNumber
         self.appIcon = appIcon
+        self.creditsHeader = creditsHeader
         self.credits = credits
     }
     
@@ -26,7 +28,7 @@ struct AboutView: View {
         List {
             AppInfoSection(appName: appName, appVersion: appVersion, buildNumber: buildNumber, appIcon: appIcon)
             
-            CreditsSection(credits: credits)
+            CreditsSection(header: creditsHeader, credits: credits)
         }
     }
 }
@@ -35,7 +37,7 @@ struct AboutView: View {
 ///
 /// - Parameter appName: A localized string key for the app's localized name.
 /// - Parameter appVersion: A string for the app's version number.
-/// - Parameter buildNumber: A string for the app's build number.
+/// - Parameter buildNumber: A string for the app's build number. Hidden by default. Displayed upon tapping the app's version number.
 /// - Parameter appIcon: An image for the app's icon.
 struct AppInfoSection: View {
     private let appName: LocalizedStringKey
@@ -89,14 +91,16 @@ struct Credit: Identifiable {
 }
 
 struct CreditsSection: View {
+    private let header: LocalizedStringKey
     private let credits: [Credit]
 
-    public init(credits: [Credit]) {
+    public init(header: LocalizedStringKey, credits: [Credit]) {
+        self.header = header
         self.credits = credits
     }
     
     var body: some View {
-        Section("settings-credits-header") {
+        Section(header) {
             ForEach(credits) { credit in
                 LabeledContent(credit.role, value: credit.name)
             }
@@ -111,6 +115,7 @@ struct CreditsSection: View {
             appVersion: "1.0",
             buildNumber: "1",
             appIcon: Image(systemName: "app.fill"),
+            creditsHeader: "Credits",
             credits: [Credit(name: "Alex Baratti", role: "Developer"), Credit(name: "Alex Baratti", role: "Designer")]
         )
         .navigationTitle("About")
