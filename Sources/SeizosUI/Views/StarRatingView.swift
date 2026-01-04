@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct StarRatingView: View {
+public struct StarRatingView: View {
     @Binding private var rating: Int
     private let maxRating: Int
     private let fillColor: Color
