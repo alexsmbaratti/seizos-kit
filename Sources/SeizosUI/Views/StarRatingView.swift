@@ -36,7 +36,21 @@ public struct StarRatingView: View {
                         }
                 }
             }
-        }
+            .accessibilityLabel("Rating")
+            .accessibilityValue("\(rating) out of \(maxRating) stars")
+            .accessibilityAdjustableAction { direction in
+                guard isEditable else { return }
+                
+                switch direction {
+                case .increment:
+                    rating = min(rating + 1, maxRating)
+                case .decrement:
+                    rating = max(rating - 1, 1)
+                default:
+                    break
+                }
+            }
+    }
 }
 
 #Preview {
