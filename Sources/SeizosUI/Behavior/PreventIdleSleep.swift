@@ -20,13 +20,20 @@ import SwiftUI
 /// - Important: This modifier affects a global application-level setting.
 ///   If multiple views manage the idle timer, ensure their behavior does not
 ///   conflict.
+///
+/// - Note: This modifier has no effect on watchOS.
 public extension View {
     func idleTimerDisabled(_ disabled: Bool = true) -> some View {
-        onAppear {
-            UIApplication.shared.isIdleTimerDisabled = disabled
-        }
-        .onDisappear {
-            UIApplication.shared.isIdleTimerDisabled = false
-        }
+#if os(watchOS)
+        self
+#else
+        self
+            .onAppear {
+                UIApplication.shared.isIdleTimerDisabled = disabled
+            }
+            .onDisappear {
+                UIApplication.shared.isIdleTimerDisabled = false
+            }
+#endif
     }
 }
