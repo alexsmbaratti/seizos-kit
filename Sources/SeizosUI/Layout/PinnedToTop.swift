@@ -16,9 +16,8 @@ public struct PinnedToTop: ViewModifier {
     }
 }
 
-public extension View {
-    func pinnedToTop() -> some View {
+extension View {
+    public func pinnedToTop() -> some View {
         modifier(PinnedToTop())
     }
 }
-

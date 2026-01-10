@@ -25,48 +25,48 @@ public struct StarRatingView: View {
     private let isEditable: Bool
     private let accessibilityLabel: LocalizedStringKey
     private let accessibilityValue: LocalizedStringKey
-    
+
     public init(
-            rating: Binding<Int>,
-            maxRating: Int = 5,
-            fillColor: Color = .yellow,
-            isEditable: Bool = true,
-            accessibilityLabel: LocalizedStringKey = "",
-            accessibilityValue: LocalizedStringKey = ""
-        ) {
-            self._rating = rating
-            self.maxRating = maxRating
-            self.fillColor = fillColor
-            self.isEditable = isEditable
-            self.accessibilityLabel = accessibilityLabel
-            self.accessibilityValue = accessibilityValue
-        }
-    
+        rating: Binding<Int>,
+        maxRating: Int = 5,
+        fillColor: Color = .yellow,
+        isEditable: Bool = true,
+        accessibilityLabel: LocalizedStringKey = "",
+        accessibilityValue: LocalizedStringKey = ""
+    ) {
+        self._rating = rating
+        self.maxRating = maxRating
+        self.fillColor = fillColor
+        self.isEditable = isEditable
+        self.accessibilityLabel = accessibilityLabel
+        self.accessibilityValue = accessibilityValue
+    }
+
     public var body: some View {
-            HStack(spacing: 0) {
-                ForEach(1...maxRating, id: \.self) { index in
-                    Image(systemName: index <= rating ? "star.fill" : "star")
-                        .foregroundStyle(index <= rating ? fillColor : .gray)
-                        .onTapGesture {
-                            guard isEditable else { return }
-                            rating = index
-                        }
-                }
+        HStack(spacing: 0) {
+            ForEach(1...maxRating, id: \.self) { index in
+                Image(systemName: index <= rating ? "star.fill" : "star")
+                    .foregroundStyle(index <= rating ? fillColor : .gray)
+                    .onTapGesture {
+                        guard isEditable else { return }
+                        rating = index
+                    }
             }
-            .accessibilityLabel(accessibilityLabel)
-            .accessibilityValue(accessibilityValue)
-            .accessibilityAdjustableAction { direction in
-                guard isEditable else { return }
-                
-                switch direction {
-                case .increment:
-                    rating = min(rating + 1, maxRating)
-                case .decrement:
-                    rating = max(rating - 1, 1)
-                default:
-                    break
-                }
+        }
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityValue(accessibilityValue)
+        .accessibilityAdjustableAction { direction in
+            guard isEditable else { return }
+
+            switch direction {
+            case .increment:
+                rating = min(rating + 1, maxRating)
+            case .decrement:
+                rating = max(rating - 1, 1)
+            default:
+                break
             }
+        }
     }
 }
 

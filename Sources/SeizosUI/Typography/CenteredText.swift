@@ -16,11 +16,11 @@ public struct CenteredText: View {
     public init(_ key: LocalizedStringKey) {
         self.text = Text(key)
     }
-    
+
     public init(_ string: String) {
         self.text = Text(string)
     }
-    
+
     public init(_ text: Text) {
         self.text = text
     }

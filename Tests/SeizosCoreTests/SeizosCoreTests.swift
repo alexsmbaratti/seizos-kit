@@ -1,4 +1,5 @@
 import Testing
+
 @testable import SeizosKit
 
 @Test func example() async throws {

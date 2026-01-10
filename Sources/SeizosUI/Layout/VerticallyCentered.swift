@@ -14,8 +14,8 @@ public struct VerticallyCentered: ViewModifier {
     }
 }
 
-public extension View {
-    func verticallyCentered() -> some View {
+extension View {
+    public func verticallyCentered() -> some View {
         modifier(VerticallyCentered())
     }
 }

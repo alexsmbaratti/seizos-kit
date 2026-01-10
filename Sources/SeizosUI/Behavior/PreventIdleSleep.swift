@@ -22,18 +22,18 @@ import SwiftUI
 ///   conflict.
 ///
 /// - Note: This modifier has no effect on watchOS.
-public extension View {
-    func idleTimerDisabled(_ disabled: Bool = true) -> some View {
-#if os(watchOS)
-        self
-#else
-        self
-            .onAppear {
-                UIApplication.shared.isIdleTimerDisabled = disabled
-            }
-            .onDisappear {
-                UIApplication.shared.isIdleTimerDisabled = false
-            }
-#endif
+extension View {
+    public func idleTimerDisabled(_ disabled: Bool = true) -> some View {
+        #if os(watchOS)
+            self
+        #else
+            self
+                .onAppear {
+                    UIApplication.shared.isIdleTimerDisabled = disabled
+                }
+                .onDisappear {
+                    UIApplication.shared.isIdleTimerDisabled = false
+                }
+        #endif
     }
 }

@@ -24,8 +24,17 @@ public struct AboutView: View {
     private let individualCredits: [IndividualCredit]
     private let dependencyCreditsHeader: LocalizedStringKey
     private let dependencyCredits: [DependencyCredit]
-    
-    public init(appName: LocalizedStringKey, appVersion: String, buildNumber: String, appIcon: Image, individualCreditsHeader: LocalizedStringKey, credits: [IndividualCredit], dependencyCreditsHeader: LocalizedStringKey, dependencyCredits: [DependencyCredit]) {
+
+    public init(
+        appName: LocalizedStringKey,
+        appVersion: String,
+        buildNumber: String,
+        appIcon: Image,
+        individualCreditsHeader: LocalizedStringKey,
+        credits: [IndividualCredit],
+        dependencyCreditsHeader: LocalizedStringKey,
+        dependencyCredits: [DependencyCredit]
+    ) {
         self.appName = appName
         self.appVersion = appVersion
         self.buildNumber = buildNumber
@@ -35,15 +44,26 @@ public struct AboutView: View {
         self.dependencyCreditsHeader = dependencyCreditsHeader
         self.dependencyCredits = dependencyCredits
     }
-    
+
     public var body: some View {
         List {
-            AppInfoSection(appName: appName, appVersion: appVersion, buildNumber: buildNumber, appIcon: appIcon)
-            
-            IndividualCreditsSection(header: individualCreditsHeader, credits: individualCredits)
-            
+            AppInfoSection(
+                appName: appName,
+                appVersion: appVersion,
+                buildNumber: buildNumber,
+                appIcon: appIcon
+            )
+
+            IndividualCreditsSection(
+                header: individualCreditsHeader,
+                credits: individualCredits
+            )
+
             if !dependencyCredits.isEmpty {
-                DependencyCreditsSection(header: dependencyCreditsHeader, credits: dependencyCredits)
+                DependencyCreditsSection(
+                    header: dependencyCreditsHeader,
+                    credits: dependencyCredits
+                )
             }
         }
     }
@@ -60,16 +80,21 @@ public struct AppInfoSection: View {
     private let appVersion: String
     private let buildNumber: String
     private let appIcon: Image
-    
+
     @State private var showsBuildNumber = false
-    
-    public init(appName: LocalizedStringKey, appVersion: String, buildNumber: String, appIcon: Image) {
+
+    public init(
+        appName: LocalizedStringKey,
+        appVersion: String,
+        buildNumber: String,
+        appIcon: Image
+    ) {
         self.appName = appName
         self.appVersion = appVersion
         self.buildNumber = buildNumber
         self.appIcon = appIcon
     }
-    
+
     public var body: some View {
         Section {
             VStack {
@@ -77,14 +102,16 @@ public struct AppInfoSection: View {
                     .resizable()
                     .frame(width: 80, height: 80)
                     .shadow(radius: 4)
-                
+
                 Text(appName)
                     .font(.title2)
                     .fontWeight(.bold)
-                
-                Text(showsBuildNumber
-                     ? "\(appVersion) (\(buildNumber))"
-                     : appVersion)
+
+                Text(
+                    showsBuildNumber
+                        ? "\(appVersion) (\(buildNumber))"
+                        : appVersion
+                )
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .onTapGesture {
@@ -106,7 +133,7 @@ public struct IndividualCredit: Identifiable {
     public let id: UUID
     public let name: String
     public let role: LocalizedStringKey
-    
+
     public init(
         id: UUID = UUID(),
         name: String,
@@ -121,12 +148,12 @@ public struct IndividualCredit: Identifiable {
 public struct IndividualCreditsSection: View {
     private let header: LocalizedStringKey
     private let credits: [IndividualCredit]
-    
+
     public init(header: LocalizedStringKey, credits: [IndividualCredit]) {
         self.header = header
         self.credits = credits
     }
-    
+
     public var body: some View {
         Section(header) {
             ForEach(credits) { credit in
@@ -141,7 +168,7 @@ public struct DependencyCredit: Identifiable {
     public let name: String
     public let description: String
     public let url: URL?
-    
+
     public init(
         id: UUID = UUID(),
         name: String,
@@ -158,12 +185,12 @@ public struct DependencyCredit: Identifiable {
 public struct DependencyCreditsSection: View {
     private let header: LocalizedStringKey
     private let credits: [DependencyCredit]
-    
+
     public init(header: LocalizedStringKey, credits: [DependencyCredit]) {
         self.header = header
         self.credits = credits
     }
-    
+
     public var body: some View {
         Section(header) {
             ForEach(credits) { item in
@@ -187,7 +214,21 @@ public struct DependencyCreditsSection: View {
             buildNumber: "1",
             appIcon: Image(systemName: "app.fill"),
             individualCreditsHeader: "Credits",
-            credits: [IndividualCredit(name: "Alex Baratti", role: "Developer"), IndividualCredit(name: "Alex Baratti", role: "Designer")], dependencyCreditsHeader: "Packages", dependencyCredits: [DependencyCredit(name: "SeizosKit", description: "Provides reusable UI views and utilities, including this view!", url: URL(string: "https://github.com/alexsmbaratti/seizos-kit"))]
+            credits: [
+                IndividualCredit(name: "Alex Baratti", role: "Developer"),
+                IndividualCredit(name: "Alex Baratti", role: "Designer"),
+            ],
+            dependencyCreditsHeader: "Packages",
+            dependencyCredits: [
+                DependencyCredit(
+                    name: "SeizosKit",
+                    description:
+                        "Provides reusable UI views and utilities, including this view!",
+                    url: URL(
+                        string: "https://github.com/alexsmbaratti/seizos-kit"
+                    )
+                )
+            ]
         )
         .navigationTitle("About")
     }
