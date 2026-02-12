@@ -1,5 +1,5 @@
 //
-//  PinnedToTop.swift
+//  PinnedToTopModifier.swift
 //  SeizosKit
 //
 //  Created by Alex Baratti on 12/27/25.

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  DebugFrameModifier.swift
 //  SeizosKit
 //
 //  Created by Alex Baratti on 2/11/26.

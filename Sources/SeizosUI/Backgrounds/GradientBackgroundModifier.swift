@@ -1,5 +1,5 @@
 //
-//  AccentGradientBackground.swift
+//  GradientBackgroundModifier.swift
 //  SeizosKit
 //
 //  Created by Alex Baratti on 12/22/25.
