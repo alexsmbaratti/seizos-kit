@@ -22,6 +22,14 @@ public struct DebugBorderModifier: ViewModifier {
 }
 
 extension View {
+    /// Applies a rectangular border around the view to assist with debugging.
+    ///
+    /// - Note:
+    /// This modifier has no effect for non-debug builds.
+    ///
+    /// - Parameter color: The color of the border.
+    /// - Parameter width: The width of the border.
+    /// - Returns: A view with the border applied.
     public func debugBorder(color: Color = .red, lineWidth: CGFloat = 1)
         -> some View
     {

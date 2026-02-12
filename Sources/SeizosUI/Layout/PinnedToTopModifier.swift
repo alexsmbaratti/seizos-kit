@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct PinnedToTop: ViewModifier {
+public struct PinnedToTopModifier: ViewModifier {
     public func body(content: Content) -> some View {
         VStack {
             content
@@ -18,6 +18,6 @@ public struct PinnedToTop: ViewModifier {
 
 extension View {
     public func pinnedToTop() -> some View {
-        modifier(PinnedToTop())
+        modifier(PinnedToTopModifier())
     }
 }

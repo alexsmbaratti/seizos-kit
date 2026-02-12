@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct GradientBackground: ViewModifier {
+public struct GradientBackgroundModifier: ViewModifier {
     private let color: Color
 
     @Environment(\.colorScheme) private var colorScheme
@@ -63,7 +63,7 @@ extension View {
     /// - Parameter color: The base color of the gradient.
     /// - Returns: A view with the accent gradient background applied.
     public func gradientBackground(color: Color) -> some View {
-        self.modifier(GradientBackground(color: color))
+        self.modifier(GradientBackgroundModifier(color: color))
     }
 }
 

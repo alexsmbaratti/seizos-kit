@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct VerticallyCentered: ViewModifier {
+public struct VerticallyCenteredModifier: ViewModifier {
     public func body(content: Content) -> some View {
         content
             .frame(maxHeight: .infinity, alignment: .center)
@@ -16,6 +16,6 @@ public struct VerticallyCentered: ViewModifier {
 
 extension View {
     public func verticallyCentered() -> some View {
-        modifier(VerticallyCentered())
+        modifier(VerticallyCenteredModifier())
     }
 }
