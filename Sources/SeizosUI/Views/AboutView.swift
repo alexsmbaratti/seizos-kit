@@ -20,9 +20,7 @@ public struct AboutView: View {
     private let appVersion: String
     private let buildNumber: String
     private let appIcon: Image
-    private let individualCreditsHeader: LocalizedStringKey
     private let individualCredits: [IndividualCredit]
-    private let dependencyCreditsHeader: LocalizedStringKey
     private let dependencyCredits: [DependencyCredit]
 
     public init(
@@ -30,18 +28,14 @@ public struct AboutView: View {
         appVersion: String,
         buildNumber: String,
         appIcon: Image,
-        individualCreditsHeader: LocalizedStringKey,
         credits: [IndividualCredit],
-        dependencyCreditsHeader: LocalizedStringKey,
         dependencyCredits: [DependencyCredit]
     ) {
         self.appName = appName
         self.appVersion = appVersion
         self.buildNumber = buildNumber
         self.appIcon = appIcon
-        self.individualCreditsHeader = individualCreditsHeader
         self.individualCredits = credits
-        self.dependencyCreditsHeader = dependencyCreditsHeader
         self.dependencyCredits = dependencyCredits
     }
 
@@ -55,13 +49,11 @@ public struct AboutView: View {
             )
 
             IndividualCreditsSection(
-                header: individualCreditsHeader,
                 credits: individualCredits
             )
 
             if !dependencyCredits.isEmpty {
                 DependencyCreditsSection(
-                    header: dependencyCreditsHeader,
                     credits: dependencyCredits
                 )
             }
@@ -146,16 +138,14 @@ public struct IndividualCredit: Identifiable {
 }
 
 public struct IndividualCreditsSection: View {
-    private let header: LocalizedStringKey
     private let credits: [IndividualCredit]
 
-    public init(header: LocalizedStringKey, credits: [IndividualCredit]) {
-        self.header = header
+    public init(credits: [IndividualCredit]) {
         self.credits = credits
     }
 
     public var body: some View {
-        Section(header) {
+        Section(header: Text("individualCredits.header", bundle: .module)) {
             ForEach(credits) { credit in
                 LabeledContent(credit.role, value: credit.name)
             }
@@ -183,16 +173,14 @@ public struct DependencyCredit: Identifiable {
 }
 
 public struct DependencyCreditsSection: View {
-    private let header: LocalizedStringKey
     private let credits: [DependencyCredit]
 
-    public init(header: LocalizedStringKey, credits: [DependencyCredit]) {
-        self.header = header
+    public init(credits: [DependencyCredit]) {
         self.credits = credits
     }
 
     public var body: some View {
-        Section(header) {
+        Section(header: Text("dependencyCredits.header", bundle: .module)) {
             ForEach(credits) { item in
                 VStack {
                     LeadingText(item.name)
@@ -213,12 +201,10 @@ public struct DependencyCreditsSection: View {
             appVersion: "1.0",
             buildNumber: "1",
             appIcon: Image(systemName: "app.fill"),
-            individualCreditsHeader: "Credits",
             credits: [
                 IndividualCredit(name: "Alex Baratti", role: "Developer"),
                 IndividualCredit(name: "Alex Baratti", role: "Designer"),
             ],
-            dependencyCreditsHeader: "Packages",
             dependencyCredits: [
                 DependencyCredit(
                     name: "SeizosKit",

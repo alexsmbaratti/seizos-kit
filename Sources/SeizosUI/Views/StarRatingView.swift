@@ -16,14 +16,12 @@ import SwiftUI
 /// - Parameter maxRating: The maximum number of stars possible. For example, for a five-star rating system, the `maxRating` would be `5`.
 /// - Parameter fillColor: The color of filled stars. Defaults to yellow.
 /// - Parameter isEditable: Whether the rating is dynamic.
-/// - Parameter accessibilityLabel: A localized string key representing the label for this view (i.e. "Rating").
 /// - Parameter accessibilityValue: A localized string key representing the value for this view (i.e. "3 out of 5 stars"). Used for VoiceOver. This should incorporate `rating` and `maxRating`.
 public struct StarRatingView: View {
     @Binding private var rating: Int
     private let maxRating: Int
     private let fillColor: Color
     private let isEditable: Bool
-    private let accessibilityLabel: LocalizedStringKey
     private let accessibilityValue: LocalizedStringKey
 
     public init(
@@ -31,14 +29,12 @@ public struct StarRatingView: View {
         maxRating: Int = 5,
         fillColor: Color = .yellow,
         isEditable: Bool = true,
-        accessibilityLabel: LocalizedStringKey = "",
         accessibilityValue: LocalizedStringKey = ""
     ) {
         self._rating = rating
         self.maxRating = maxRating
         self.fillColor = fillColor
         self.isEditable = isEditable
-        self.accessibilityLabel = accessibilityLabel
         self.accessibilityValue = accessibilityValue
     }
 
@@ -53,8 +49,10 @@ public struct StarRatingView: View {
                     }
             }
         }
-        .accessibilityLabel(accessibilityLabel)
-        .accessibilityValue(accessibilityValue)
+        .accessibilityLabel(
+            Text("starRating.accessibilityLabel", bundle: .module)
+        )
+        .accessibilityValue(Text("starRating.accessibilityValue \(rating) \(maxRating)", bundle: .module))
         .accessibilityAdjustableAction { direction in
             guard isEditable else { return }
 
