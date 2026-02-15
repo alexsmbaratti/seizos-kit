@@ -145,7 +145,7 @@ public struct IndividualCreditsSection: View {
     }
 
     public var body: some View {
-        Section(header: Text("individualCredits.header")) {
+        Section(header: Text("individualCredits.header", bundle: .module)) {
             ForEach(credits) { credit in
                 LabeledContent(credit.role, value: credit.name)
             }
@@ -180,7 +180,7 @@ public struct DependencyCreditsSection: View {
     }
 
     public var body: some View {
-        Section(header: Text("dependencyCredits.header")) {
+        Section(header: Text("dependencyCredits.header", bundle: .module)) {
             ForEach(credits) { item in
                 VStack {
                     LeadingText(item.name)
