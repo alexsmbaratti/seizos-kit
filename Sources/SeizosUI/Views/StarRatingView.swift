@@ -50,9 +50,9 @@ public struct StarRatingView: View {
             }
         }
         .accessibilityLabel(
-            Text("starRating.accessibilityLabel", bundle: .module)
+            Text("starRating.accessibilityLabel")
         )
-        .accessibilityValue(Text("starRating.accessibilityValue \(rating) \(maxRating)", bundle: .module))
+        .accessibilityValue(Text("starRating.accessibilityValue \(rating) \(maxRating)"))
         .accessibilityAdjustableAction { direction in
             guard isEditable else { return }
 
