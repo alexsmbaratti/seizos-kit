@@ -9,7 +9,7 @@ let package = Package(
         .iOS(.v16),
         .macOS(.v14),
         .watchOS(.v10),
-        .visionOS(.v1)
+        .visionOS(.v1),
     ],
     products: [
         .library(
@@ -27,7 +27,10 @@ let package = Package(
         ),
         .target(
             name: "SeizosUI",
-            dependencies: ["SeizosCore"]
+            dependencies: ["SeizosCore"],
+            resources: [
+                .process("Resources")
+            ]
         ),
         .testTarget(
             name: "SeizosCoreTests",
