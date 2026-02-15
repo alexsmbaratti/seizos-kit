@@ -27,7 +27,10 @@ let package = Package(
         ),
         .target(
             name: "SeizosUI",
-            dependencies: ["SeizosCore"]
+            dependencies: ["SeizosCore"],
+            resources: [
+                .process("Resources")
+            ]
         ),
         .testTarget(
             name: "SeizosCoreTests",
