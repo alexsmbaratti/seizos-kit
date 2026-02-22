@@ -94,6 +94,7 @@ public struct AppInfoSection: View {
                     .resizable()
                     .frame(width: 80, height: 80)
                     .shadow(radius: 4)
+                    .accessibility(hidden: true)
 
                 Text(appName)
                     .font(.title2)
@@ -103,6 +104,9 @@ public struct AppInfoSection: View {
                     showsBuildNumber
                         ? "\(appVersion) (\(buildNumber))"
                         : appVersion
+                )
+                .accessibilityLabel(
+                    "appInfo.version.accessibilityLabel \(appVersion)"
                 )
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -185,7 +189,7 @@ public struct AttributionCreditsSection: View {
                 VStack {
                     LeadingText(item.name)
                         .onTapGesture {
-                            #if canImport(UIKit) && os(iOS)
+                            #if canImport(UIKit) && (os(iOS) || os(visionOS))
                                 if let url = item.url {
                                     UIApplication.shared.open(url)
                                 }
