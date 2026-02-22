@@ -106,8 +106,11 @@ public struct AppInfoSection: View {
                         : appVersion
                 )
                 .accessibilityLabel(
-                    "appInfo.version.accessibilityLabel \(appVersion)"
+                    showsBuildNumber
+                        ? "Version \(appVersion), Build Number (\(buildNumber))"
+                        : "Version \(appVersion)"
                 )
+                .accessibilityHint("Double-tap to reveal build number")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .onTapGesture {
