@@ -184,6 +184,13 @@ public struct AttributionCreditsSection: View {
             ForEach(credits) { item in
                 VStack {
                     LeadingText(item.name)
+                        .onTapGesture {
+                            #if canImport(UIKit)
+                                if let url = item.url {
+                                    UIApplication.shared.open(url)
+                                }
+                            #endif
+                        }
                     LeadingText(item.description)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
