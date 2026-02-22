@@ -185,7 +185,7 @@ public struct AttributionCreditsSection: View {
                 VStack {
                     LeadingText(item.name)
                         .onTapGesture {
-                            #if canImport(UIKit)
+                            #if canImport(UIKit) && os(iOS)
                                 if let url = item.url {
                                     UIApplication.shared.open(url)
                                 }
