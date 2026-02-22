@@ -110,7 +110,7 @@ public struct AppInfoSection: View {
                         ? "Version \(appVersion), Build Number (\(buildNumber))"
                         : "Version \(appVersion)"
                 )
-                .accessibilityHint("Double-tap to reveal build number")
+                .accessibilityHint("Reveals build number")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .onTapGesture {
@@ -203,6 +203,9 @@ public struct AttributionCreditsSection: View {
                         .foregroundColor(.secondary)
                 }
                 .accessibilityElement(children: .combine)
+                #if canImport(UIKit) && (os(iOS) || os(visionOS))
+                .accessibilityHint(item.url != nil ? "Opens the associated webpage" : "")
+                #endif
                 .padding(.vertical, 6)
             }
         }
