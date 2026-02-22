@@ -202,6 +202,7 @@ public struct AttributionCreditsSection: View {
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
+                .accessibilityElement(children: .combine)
                 .padding(.vertical, 6)
             }
         }
