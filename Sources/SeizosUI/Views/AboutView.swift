@@ -73,7 +73,7 @@ public struct AppInfoSection: View {
     private let buildNumber: String
     private let appIcon: Image
 
-    @State private var showsBuildNumber = false
+    @State private var buildNumberIsVisible = false
 
     public init(
         appName: LocalizedStringKey,
@@ -101,20 +101,20 @@ public struct AppInfoSection: View {
                     .fontWeight(.bold)
 
                 Text(
-                    showsBuildNumber
+                    buildNumberIsVisible
                         ? "\(appVersion) (\(buildNumber))"
                         : appVersion
                 )
                 .accessibilityLabel(
-                    showsBuildNumber
+                    buildNumberIsVisible
                         ? "Version \(appVersion), Build Number (\(buildNumber))"
                         : "Version \(appVersion)"
                 )
-                .accessibilityHint("Reveals build number")
+                .accessibilityHint(buildNumberIsVisible ? "": "Reveals build number")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .onTapGesture {
-                    showsBuildNumber = true
+                    buildNumberIsVisible = true
                 }
             }
             .horizontallyCentered()
