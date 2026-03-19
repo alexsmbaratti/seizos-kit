@@ -21,7 +21,7 @@ public struct SplitDetailView<
     let trailingContent: TrailingContent
     let widthRatio: CGFloat = 3 / 5
 
-    init(
+    public init(
         @ViewBuilder header: () -> HeaderContent,
         @ViewBuilder compact: () -> CompactContent,
         @ViewBuilder leading: () -> LeadingContent,
