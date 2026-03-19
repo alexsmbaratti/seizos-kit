@@ -8,70 +8,88 @@
 import SwiftUI
 
 struct SplitDetailView<
+    HeaderContent: View,
     CompactContent: View,
     LeadingContent: View,
     TrailingContent: View
 >: View {
     @Environment(\.horizontalSizeClass) var sizeClass
 
+    let headerContent: HeaderContent
     let compactContent: CompactContent
     let leadingContent: LeadingContent
     let trailingContent: TrailingContent
-    let widthRatio: CGFloat = 2 / 3
+    let widthRatio: CGFloat = 3 / 5
 
     init(
+        @ViewBuilder header: () -> HeaderContent,
         @ViewBuilder compact: () -> CompactContent,
         @ViewBuilder leading: () -> LeadingContent,
-        @ViewBuilder trailing: () -> TrailingContent,
-        _ widthRatio: CGFloat = 2 / 3
+        @ViewBuilder trailing: () -> TrailingContent
     ) {
+        self.headerContent = header()
         self.compactContent = compact()
         self.leadingContent = leading()
         self.trailingContent = trailing()
     }
 
     var body: some View {
-        ScrollView {
+        VStack {
             if sizeClass == .compact {
+                headerContent
                 compactContent
             } else {
+                headerContent
                 GeometryReader { geometry in
-                    HStack(spacing: 16) {
+                    HStack(alignment: .top, spacing: 16) {
                         leadingContent
                             .frame(
-                                maxWidth: geometry.size.width * widthRatio,
-                                maxHeight: .infinity
+                                maxWidth: geometry.size.width * widthRatio
                             )
                         trailingContent
                             .frame(
                                 maxWidth: geometry.size.width
-                                    * (1 - widthRatio),
-                                maxHeight: .infinity
+                                    * (1 - widthRatio)
                             )
                     }
                 }
             }
+            Spacer()
         }
     }
 }
 
 #Preview {
-    SplitDetailView(
-        compact: {
-            VStack {
-                Text("Leading")
-                Text("Trailing")
+    ScrollView {
+        SplitDetailView(
+            header: {
+                VStack {
+                    LeadingText("Hello, World")
+                        .font(.title)
+                        .bold()
+                    LeadingText("Hello, World")
+                        .foregroundStyle(.secondary)
+                        .font(.headline)
+                    Divider()
+                }
+            },
+            compact: {
+                VStack {
+                    Text("Leading")
+                    Text("Trailing")
+                }
+            },
+            leading: {
+                VStack {
+                    Text("Leading")
+                }
+            },
+            trailing: {
+                VStack {
+                    Text("Trailing")
+                }
             }
-        },
-        leading: {
-            VStack {
-                Text("Leading")
-            }
-        },
-        trailing: {
-            VStack {
-                Text("Trailing")
-            }
-        }
-    )
+        )
+        .padding([.leading, .bottom, .trailing])
+    }
 }
