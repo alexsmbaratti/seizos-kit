@@ -21,10 +21,12 @@ import SwiftUI
 ///   If multiple views manage the idle timer, ensure their behavior does not
 ///   conflict.
 ///
-/// - Note: This modifier has no effect on watchOS.
+/// - Note: This modifier has no effect on watchOS or macOS.
 extension View {
     public func idleTimerDisabled(_ disabled: Bool = true) -> some View {
         #if os(watchOS)
+            self
+        #elseif os(macOS)
             self
         #else
             self

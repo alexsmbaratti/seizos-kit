@@ -78,7 +78,13 @@ extension View {
         .navigationTitle("Hello, world!")
         .toolbar {
             ToolbarItem(
-                placement: .topBarTrailing,
+                placement: {
+                    #if os(macOS)
+                    .automatic
+                    #else
+                    .topBarTrailing
+                    #endif
+                }(),
                 content: {
                     Button(
                         action: {},
@@ -110,7 +116,13 @@ extension View {
             .navigationTitle("Hello, world!")
             .toolbar {
                 ToolbarItem(
-                    placement: .topBarTrailing,
+                    placement: {
+                        #if os(macOS)
+                        .automatic
+                        #else
+                        .topBarTrailing
+                        #endif
+                    }(),
                     content: {
                         Button(
                             action: {},
