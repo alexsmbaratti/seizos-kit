@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SplitDetailView<
+public struct SplitDetailView<
     HeaderContent: View,
     CompactContent: View,
     LeadingContent: View,
@@ -33,7 +33,7 @@ struct SplitDetailView<
         self.trailingContent = trailing()
     }
 
-    var body: some View {
+    public var body: some View {
         VStack {
             if sizeClass == .compact {
                 headerContent
