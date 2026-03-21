@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "SeizosKit",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v16),
         .macOS(.v14),
