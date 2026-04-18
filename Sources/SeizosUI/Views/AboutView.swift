@@ -157,17 +157,20 @@ public struct DependencyCredit: Identifiable {
     public let id: UUID
     public let name: String
     public let description: String
+    public let licenseText: String?
     public let url: URL?
 
     public init(
         id: UUID = UUID(),
         name: String,
         description: String,
+        licenseText: String? = nil,
         url: URL? = nil
     ) {
         self.id = id
         self.name = name
         self.description = description
+        self.licenseText = licenseText
         self.url = url
     }
 }
@@ -182,13 +185,35 @@ public struct DependencyCreditsSection: View {
     public var body: some View {
         Section(header: Text("dependencyCredits.header", bundle: .module)) {
             ForEach(credits) { item in
-                VStack {
-                    LeadingText(item.name)
-                    LeadingText(item.description)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                .padding(.vertical, 6)
+                DependencyCreditView(dependencyCredit: item)
+            }
+        }
+    }
+}
+
+public struct DependencyCreditView: View {
+    private let dependencyCredit: DependencyCredit
+
+    @State private var showLicenseText = "Show License"
+
+    public init(dependencyCredit: DependencyCredit) {
+        self.dependencyCredit = dependencyCredit
+    }
+
+    public var body: some View {
+        VStack {
+            LeadingText(dependencyCredit.name)
+            LeadingText(dependencyCredit.description)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            if let licenseText = dependencyCredit.licenseText {
+                Divider()
+                LeadingText(showLicenseText)
+                    .onTapGesture {
+                        showLicenseText = licenseText
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
             }
         }
     }
@@ -210,6 +235,29 @@ public struct DependencyCreditsSection: View {
                     name: "SeizosKit",
                     description:
                         "Provides reusable UI views and utilities, including this view!",
+                    licenseText: """
+                        MIT License
+
+                        Copyright (c) 2025 Alex Baratti
+
+                        Permission is hereby granted, free of charge, to any person obtaining a copy
+                        of this software and associated documentation files (the "Software"), to deal
+                        in the Software without restriction, including without limitation the rights
+                        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+                        copies of the Software, and to permit persons to whom the Software is
+                        furnished to do so, subject to the following conditions:
+
+                        The above copyright notice and this permission notice shall be included in all
+                        copies or substantial portions of the Software.
+
+                        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+                        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+                        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+                        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+                        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+                        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+                        SOFTWARE.
+                        """,
                     url: URL(
                         string: "https://github.com/alexsmbaratti/seizos-kit"
                     )
