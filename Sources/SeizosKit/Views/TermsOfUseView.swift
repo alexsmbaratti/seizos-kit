@@ -5,7 +5,6 @@
 //  Created by Alex Baratti on 12/28/25.
 //
 
-import SeizosCore
 import SwiftUI
 
 /// A view for displaying terms of use for an app. Applies bold formatting for numbered headers in the provided terms of use. Also displays the provided string indicating the last update of the terms of use.

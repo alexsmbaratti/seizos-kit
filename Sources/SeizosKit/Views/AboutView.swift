@@ -21,7 +21,7 @@ public struct AboutView: View {
     private let buildNumber: String
     private let appIcon: Image
     private let individualCredits: [IndividualCredit]
-    private let dependencyCredits: [DependencyCredit]
+    private let dependencyCredits: [AttributionCredit]
 
     public init(
         appName: LocalizedStringKey,
@@ -29,7 +29,7 @@ public struct AboutView: View {
         buildNumber: String,
         appIcon: Image,
         credits: [IndividualCredit],
-        dependencyCredits: [DependencyCredit]
+        dependencyCredits: [AttributionCredit]
     ) {
         self.appName = appName
         self.appVersion = appVersion
@@ -53,7 +53,7 @@ public struct AboutView: View {
             )
 
             if !dependencyCredits.isEmpty {
-                DependencyCreditsSection(
+                AttributionCreditsSection(
                     credits: dependencyCredits
                 )
             }
@@ -73,7 +73,7 @@ public struct AppInfoSection: View {
     private let buildNumber: String
     private let appIcon: Image
 
-    @State private var showsBuildNumber = false
+    @State private var buildNumberIsVisible = false
 
     public init(
         appName: LocalizedStringKey,
@@ -94,20 +94,27 @@ public struct AppInfoSection: View {
                     .resizable()
                     .frame(width: 80, height: 80)
                     .shadow(radius: 4)
+                    .accessibility(hidden: true)
 
                 Text(appName)
                     .font(.title2)
                     .fontWeight(.bold)
 
                 Text(
-                    showsBuildNumber
+                    buildNumberIsVisible
                         ? "\(appVersion) (\(buildNumber))"
                         : appVersion
                 )
+                .accessibilityLabel(
+                    buildNumberIsVisible
+                        ? "Version \(appVersion), Build Number (\(buildNumber))"
+                        : "Version \(appVersion)"
+                )
+                .accessibilityHint(buildNumberIsVisible ? "": "Reveals build number")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .onTapGesture {
-                    showsBuildNumber = true
+                    buildNumberIsVisible = true
                 }
             }
             .horizontallyCentered()
@@ -153,7 +160,7 @@ public struct IndividualCreditsSection: View {
     }
 }
 
-public struct DependencyCredit: Identifiable {
+public struct AttributionCredit: Identifiable {
     public let id: UUID
     public let name: String
     public let description: String
@@ -172,22 +179,33 @@ public struct DependencyCredit: Identifiable {
     }
 }
 
-public struct DependencyCreditsSection: View {
-    private let credits: [DependencyCredit]
+public struct AttributionCreditsSection: View {
+    private let credits: [AttributionCredit]
 
-    public init(credits: [DependencyCredit]) {
+    public init(credits: [AttributionCredit]) {
         self.credits = credits
     }
 
     public var body: some View {
-        Section(header: Text("dependencyCredits.header", bundle: .module)) {
+        Section(header: Text("attributionCredits.header", bundle: .module)) {
             ForEach(credits) { item in
                 VStack {
                     LeadingText(item.name)
+                        .onTapGesture {
+                            #if canImport(UIKit) && (os(iOS) || os(visionOS))
+                                if let url = item.url {
+                                    UIApplication.shared.open(url)
+                                }
+                            #endif
+                        }
                     LeadingText(item.description)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
+                .accessibilityElement(children: .combine)
+                #if canImport(UIKit) && (os(iOS) || os(visionOS))
+                .accessibilityHint(item.url != nil ? "Opens the associated webpage" : "")
+                #endif
                 .padding(.vertical, 6)
             }
         }
@@ -206,7 +224,7 @@ public struct DependencyCreditsSection: View {
                 IndividualCredit(name: "Alex Baratti", role: "Designer"),
             ],
             dependencyCredits: [
-                DependencyCredit(
+                AttributionCredit(
                     name: "SeizosKit",
                     description:
                         "Provides reusable UI views and utilities, including this view!",

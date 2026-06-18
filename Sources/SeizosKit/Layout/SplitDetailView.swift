@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SplitDetailView<
+public struct SplitDetailView<
     HeaderContent: View,
     CompactContent: View,
     LeadingContent: View,
@@ -21,7 +21,7 @@ struct SplitDetailView<
     let trailingContent: TrailingContent
     let widthRatio: CGFloat = 3 / 5
 
-    init(
+    public init(
         @ViewBuilder header: () -> HeaderContent,
         @ViewBuilder compact: () -> CompactContent,
         @ViewBuilder leading: () -> LeadingContent,
@@ -33,7 +33,7 @@ struct SplitDetailView<
         self.trailingContent = trailing()
     }
 
-    var body: some View {
+    public var body: some View {
         VStack {
             if sizeClass == .compact {
                 headerContent
@@ -44,10 +44,12 @@ struct SplitDetailView<
                     HStack(alignment: .top, spacing: 16) {
                         leadingContent
                             .frame(
+                                minWidth: 300,
                                 maxWidth: geometry.size.width * widthRatio
                             )
                         trailingContent
                             .frame(
+                                minWidth: 300,
                                 maxWidth: geometry.size.width
                                     * (1 - widthRatio)
                             )
