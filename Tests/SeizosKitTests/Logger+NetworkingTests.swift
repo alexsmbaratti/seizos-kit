@@ -21,14 +21,6 @@ struct LoggerNetworkingTests {
         logger.logRequest(request)
     }
 
-    @Test("logRequest does not crash when URL is missing")
-    func logRequestMissingURL() {
-        // URLRequest always requires a URL at init time, but we can test the
-        // method path by passing an intentionally minimal request.
-        let request = URLRequest(url: URL(string: "https://example.com")!)
-        logger.logRequest(request)
-    }
-
     @Test("logResponse does not crash with valid UTF-8 data")
     func logResponseValidData() {
         let data = Data("{\"status\":\"ok\"}".utf8)
