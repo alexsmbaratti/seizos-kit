@@ -14,25 +14,18 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "SeizosCore",
-            targets: ["SeizosCore"]
-        ),
-        .library(
-            name: "SeizosUI",
-            targets: ["SeizosUI"]
+            name: "SeizosKit",
+            targets: ["SeizosKit"]
         ),
     ],
     targets: [
         .target(
-            name: "SeizosCore"
-        ),
-        .target(
-            name: "SeizosUI",
-            dependencies: ["SeizosCore"]
+            name: "SeizosKit",
+            resources: [.process("Resources")]
         ),
         .testTarget(
-            name: "SeizosCoreTests",
-            dependencies: ["SeizosCore"]
+            name: "SeizosKitTests",
+            dependencies: ["SeizosKit"]
         ),
     ]
 )
