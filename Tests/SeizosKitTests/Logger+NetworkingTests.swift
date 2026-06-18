@@ -21,6 +21,13 @@ struct LoggerNetworkingTests {
         logger.logRequest(request)
     }
 
+    @Test("logRequest does not crash when URL is cleared after construction")
+    func logRequestNilURL() {
+        var request = URLRequest(url: URL(string: "https://example.com")!)
+        request.url = nil
+        logger.logRequest(request)
+    }
+
     @Test("logResponse does not crash with valid UTF-8 data")
     func logResponseValidData() {
         let data = Data("{\"status\":\"ok\"}".utf8)
