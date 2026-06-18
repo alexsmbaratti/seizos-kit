@@ -44,10 +44,12 @@ public struct SplitDetailView<
                     HStack(alignment: .top, spacing: 16) {
                         leadingContent
                             .frame(
+                                minWidth: 300,
                                 maxWidth: geometry.size.width * widthRatio
                             )
                         trailingContent
                             .frame(
+                                minWidth: 300,
                                 maxWidth: geometry.size.width
                                     * (1 - widthRatio)
                             )

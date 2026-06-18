@@ -9,7 +9,29 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Packages"
+            "value" : "Version %1$@"
+          }
+        }
+      }
+    },
+    "appInfo.accessibilityLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version %1$@"
+          }
+        }
+      }
+    },
+    "attributionCredits.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attributions"
           }
         }
       }
