@@ -9,13 +9,15 @@ import SwiftUI
 
 public struct ImageBackgroundModifier: ViewModifier {
     private let image: Image
+    private let heightFraction: CGFloat
 
     #if os(watchOS)
         @Environment(\.isLuminanceReduced) private var isLuminanceReduced
     #endif
 
-    public init(image: Image) {
+    public init(image: Image, heightFraction: CGFloat = 0.5) {
         self.image = image
+        self.heightFraction = heightFraction
     }
 
     public func body(content: Content) -> some View {
@@ -35,7 +37,10 @@ public struct ImageBackgroundModifier: ViewModifier {
                             image
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .frame(width: proxy.size.width, height: proxy.size.height / 2)
+                                .frame(
+                                    width: proxy.size.width,
+                                    height: proxy.size.height * heightFraction
+                                )
                                 .clipped()
                                 .mask(
                                     LinearGradient(
@@ -61,12 +66,21 @@ extension View {
     /// Platform behavior:
     /// - watchOS: The image fills the entire screen.
     /// - visionOS: No image is applied, to better match visionOS aesthetics.
-    /// - Other platforms (iOS, macOS): The image fades out from top to center, extending approximately halfway down the screen.
+    /// - Other platforms (iOS, macOS): The image occupies the top `heightFraction` of the view and fades out at its trailing edge.
     ///
-    /// - Parameter image: The image to use as the background.
+    /// - Parameters:
+    ///   - image: The image to use as the background.
+    ///   - heightFraction: The fraction of the view's height the image occupies, from `0` to `1`. Defaults to `0.5`. Ignored on watchOS and visionOS.
     /// - Returns: A view with the image background applied.
-    public func imageBackground(image: Image) -> some View {
-        self.modifier(ImageBackgroundModifier(image: image))
+    public func imageBackground(image: Image, heightFraction: CGFloat = 0.5)
+        -> some View
+    {
+        self.modifier(
+            ImageBackgroundModifier(
+                image: image,
+                heightFraction: heightFraction
+            )
+        )
     }
 }
 
@@ -83,9 +97,9 @@ extension View {
             ToolbarItem(
                 placement: {
                     #if os(macOS)
-                    .automatic
+                        .automatic
                     #else
-                    .topBarTrailing
+                        .topBarTrailing
                     #endif
                 }(),
                 content: {
@@ -98,7 +112,10 @@ extension View {
                 }
             )
         }
-        .imageBackground(image: Image(systemName: "mountain.2.fill"))
+        .imageBackground(
+            image: Image(systemName: "mountain.2.fill"),
+            heightFraction: 0.5
+        )
     }
 }
 
@@ -121,9 +138,9 @@ extension View {
                 ToolbarItem(
                     placement: {
                         #if os(macOS)
-                        .automatic
+                            .automatic
                         #else
-                        .topBarTrailing
+                            .topBarTrailing
                         #endif
                     }(),
                     content: {

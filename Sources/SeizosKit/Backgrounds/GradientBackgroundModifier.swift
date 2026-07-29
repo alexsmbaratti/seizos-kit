@@ -9,14 +9,16 @@ import SwiftUI
 
 public struct GradientBackgroundModifier: ViewModifier {
     private let color: Color
+    private let heightFraction: CGFloat
 
     @Environment(\.colorScheme) private var colorScheme
     #if os(watchOS)
         @Environment(\.isLuminanceReduced) private var isLuminanceReduced
     #endif
 
-    public init(color: Color) {
+    public init(color: Color, heightFraction: CGFloat = 0.5) {
         self.color = color
+        self.heightFraction = heightFraction
     }
 
     public func body(content: Content) -> some View {
@@ -43,7 +45,7 @@ public struct GradientBackgroundModifier: ViewModifier {
                                 Color.clear,
                             ]),
                             startPoint: .top,
-                            endPoint: .center
+                            endPoint: UnitPoint(x: 0.5, y: heightFraction)
                         )
                     #endif
                 }
@@ -58,12 +60,21 @@ extension View {
     /// Platform behavior:
     /// - watchOS: The gradient fills the entire screen.
     /// - visionOS: No gradient is applied, to better match visionOS aesthetics.
-    /// - Other platforms (iOS, macOS): The gradient extends approximately halfway down the screen.
+    /// - Other platforms (iOS, macOS): The gradient extends down from the top and fades to clear by `heightFraction` of the view's height.
     ///
-    /// - Parameter color: The base color of the gradient.
+    /// - Parameters:
+    ///   - color: The base color of the gradient.
+    ///   - heightFraction: The fraction of the view's height the gradient fades out over, from `0` (top) to `1` (bottom). Defaults to `0.5`. Ignored on watchOS and visionOS.
     /// - Returns: A view with the accent gradient background applied.
-    public func gradientBackground(color: Color) -> some View {
-        self.modifier(GradientBackgroundModifier(color: color))
+    public func gradientBackground(color: Color, heightFraction: CGFloat = 0.5)
+        -> some View
+    {
+        self.modifier(
+            GradientBackgroundModifier(
+                color: color,
+                heightFraction: heightFraction
+            )
+        )
     }
 }
 
@@ -80,9 +91,9 @@ extension View {
             ToolbarItem(
                 placement: {
                     #if os(macOS)
-                    .automatic
+                        .automatic
                     #else
-                    .topBarTrailing
+                        .topBarTrailing
                     #endif
                 }(),
                 content: {
@@ -95,7 +106,7 @@ extension View {
                 }
             )
         }
-        .gradientBackground(color: .red)
+        .gradientBackground(color: .red, heightFraction: 0.5)
     }
 }
 
@@ -118,9 +129,9 @@ extension View {
                 ToolbarItem(
                     placement: {
                         #if os(macOS)
-                        .automatic
+                            .automatic
                         #else
-                        .topBarTrailing
+                            .topBarTrailing
                         #endif
                     }(),
                     content: {
