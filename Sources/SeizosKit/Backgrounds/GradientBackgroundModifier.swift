@@ -12,9 +12,6 @@ public struct GradientBackgroundModifier: ViewModifier {
     private let heightFraction: CGFloat
 
     @Environment(\.colorScheme) private var colorScheme
-    #if os(watchOS)
-        @Environment(\.isLuminanceReduced) private var isLuminanceReduced
-    #endif
 
     public init(color: Color, heightFraction: CGFloat = 0.5) {
         self.color = color
@@ -22,35 +19,30 @@ public struct GradientBackgroundModifier: ViewModifier {
     }
 
     public func body(content: Content) -> some View {
-        content
-            .background(
-                Group {
-                    #if os(visionOS)
-                        // visionOS: no gradient
-                    #elseif os(watchOS)
-                        if !isLuminanceReduced {
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    color.opacity(0.5),
-                                    color.opacity(0.2),
-                                ]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        }
-                    #else
-                        LinearGradient(
-                            gradient: Gradient(colors: [
-                                color.opacity(colorScheme == .light ? 1 : 0.5),
-                                Color.clear,
-                            ]),
-                            startPoint: .top,
-                            endPoint: UnitPoint(x: 0.5, y: heightFraction)
-                        )
-                    #endif
+        content.modifier(
+            PlatformAdaptiveBackground(
+                full: {
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            color.opacity(0.5),
+                            color.opacity(0.2),
+                        ]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                },
+                partial: {
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            color.opacity(colorScheme == .light ? 1 : 0.5),
+                            Color.clear,
+                        ]),
+                        startPoint: .top,
+                        endPoint: UnitPoint(x: 0.5, y: heightFraction)
+                    )
                 }
-                .ignoresSafeArea()
             )
+        )
     }
 }
 

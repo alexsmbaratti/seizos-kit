@@ -11,52 +11,43 @@ public struct ImageBackgroundModifier: ViewModifier {
     private let image: Image
     private let heightFraction: CGFloat
 
-    #if os(watchOS)
-        @Environment(\.isLuminanceReduced) private var isLuminanceReduced
-    #endif
-
     public init(image: Image, heightFraction: CGFloat = 0.5) {
         self.image = image
         self.heightFraction = heightFraction
     }
 
     public func body(content: Content) -> some View {
-        content
-            .background(
-                Group {
-                    #if os(visionOS)
-                        // visionOS: no image background
-                    #elseif os(watchOS)
-                        if !isLuminanceReduced {
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        }
-                    #else
-                        GeometryReader { proxy in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(
-                                    width: proxy.size.width,
-                                    height: proxy.size.height * heightFraction
+        content.modifier(
+            PlatformAdaptiveBackground(
+                full: {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                },
+                partial: {
+                    GeometryReader { proxy in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(
+                                width: proxy.size.width,
+                                height: proxy.size.height * heightFraction
+                            )
+                            .clipped()
+                            .mask(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        .white, .white, .clear,
+                                    ]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
                                 )
-                                .clipped()
-                                .mask(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            .white, .white, .clear,
-                                        ]),
-                                        startPoint: .top,
-                                        endPoint: .bottom
-                                    )
-                                )
-                                .frame(maxHeight: .infinity, alignment: .top)
-                        }
-                    #endif
+                            )
+                            .frame(maxHeight: .infinity, alignment: .top)
+                    }
                 }
-                .ignoresSafeArea()
             )
+        )
     }
 }
 
