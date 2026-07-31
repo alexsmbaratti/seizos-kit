@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+#if canImport(UIKit)
+    import UIKit
+#elseif canImport(AppKit)
+    import AppKit
+#endif
+
 public struct GradientBackgroundModifier: ViewModifier {
     private let color: Color
     private let heightFraction: CGFloat
@@ -17,6 +23,41 @@ public struct GradientBackgroundModifier: ViewModifier {
         self.color = color
         self.heightFraction = heightFraction
     }
+
+    public init(
+        image: CGImage,
+        strategy: ImageColorExtractionStrategy,
+        heightFraction: CGFloat = 0.5
+    ) {
+        self.color = image.representativeColor(using: strategy)
+        self.heightFraction = heightFraction
+    }
+
+    #if canImport(UIKit)
+        public init(
+            image: UIImage,
+            strategy: ImageColorExtractionStrategy,
+            heightFraction: CGFloat = 0.5
+        ) {
+            if let cgImage = image.cgImage {
+                self.init(image: cgImage, strategy: strategy, heightFraction: heightFraction)
+            } else {
+                self.init(color: .gray, heightFraction: heightFraction)
+            }
+        }
+    #elseif canImport(AppKit)
+        public init(
+            image: NSImage,
+            strategy: ImageColorExtractionStrategy,
+            heightFraction: CGFloat = 0.5
+        ) {
+            if let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+                self.init(image: cgImage, strategy: strategy, heightFraction: heightFraction)
+            } else {
+                self.init(color: .gray, heightFraction: heightFraction)
+            }
+        }
+    #endif
 
     public func body(content: Content) -> some View {
         content.modifier(
@@ -68,6 +109,66 @@ extension View {
             )
         )
     }
+
+    /// Applies a platform-adaptive accent gradient background derived from an image's color.
+    ///
+    /// The gradient color is computed once, up front, from `image` using `strategy` — see
+    /// ``gradientBackground(color:heightFraction:)`` for the gradient's platform behavior.
+    ///
+    /// - Parameters:
+    ///   - image: The image to derive the gradient's base color from.
+    ///   - strategy: How to derive a single color from `image`.
+    ///   - heightFraction: The fraction of the view's height the gradient fades out over, from `0` (top) to `1` (bottom). Defaults to `0.5`. Ignored on watchOS and visionOS.
+    /// - Returns: A view with the accent gradient background applied.
+    public func gradientBackground(
+        image: CGImage,
+        strategy: ImageColorExtractionStrategy,
+        heightFraction: CGFloat = 0.5
+    ) -> some View {
+        self.modifier(
+            GradientBackgroundModifier(
+                image: image,
+                strategy: strategy,
+                heightFraction: heightFraction
+            )
+        )
+    }
+
+    #if canImport(UIKit)
+        /// Applies a platform-adaptive accent gradient background derived from an image's color.
+        ///
+        /// See ``gradientBackground(image:strategy:heightFraction:)``.
+        public func gradientBackground(
+            image: UIImage,
+            strategy: ImageColorExtractionStrategy,
+            heightFraction: CGFloat = 0.5
+        ) -> some View {
+            self.modifier(
+                GradientBackgroundModifier(
+                    image: image,
+                    strategy: strategy,
+                    heightFraction: heightFraction
+                )
+            )
+        }
+    #elseif canImport(AppKit)
+        /// Applies a platform-adaptive accent gradient background derived from an image's color.
+        ///
+        /// See ``gradientBackground(image:strategy:heightFraction:)``.
+        public func gradientBackground(
+            image: NSImage,
+            strategy: ImageColorExtractionStrategy,
+            heightFraction: CGFloat = 0.5
+        ) -> some View {
+            self.modifier(
+                GradientBackgroundModifier(
+                    image: image,
+                    strategy: strategy,
+                    heightFraction: heightFraction
+                )
+            )
+        }
+    #endif
 }
 
 #Preview("Simple View") {
