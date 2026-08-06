@@ -7,48 +7,83 @@
 
 import SwiftUI
 
+#if canImport(UIKit)
+    import UIKit
+#elseif canImport(AppKit)
+    import AppKit
+#endif
+
 public struct GradientBackgroundModifier: ViewModifier {
     private let color: Color
+    private let heightFraction: CGFloat
 
     @Environment(\.colorScheme) private var colorScheme
-    #if os(watchOS)
-        @Environment(\.isLuminanceReduced) private var isLuminanceReduced
-    #endif
 
-    public init(color: Color) {
+    public init(color: Color, heightFraction: CGFloat = 0.5) {
         self.color = color
+        self.heightFraction = heightFraction
     }
 
+    public init(
+        image: CGImage,
+        strategy: ImageColorExtractionStrategy,
+        heightFraction: CGFloat = 0.5
+    ) {
+        self.color = image.representativeColor(using: strategy)
+        self.heightFraction = heightFraction
+    }
+
+    #if canImport(UIKit)
+        public init(
+            image: UIImage,
+            strategy: ImageColorExtractionStrategy,
+            heightFraction: CGFloat = 0.5
+        ) {
+            if let cgImage = image.cgImage {
+                self.init(image: cgImage, strategy: strategy, heightFraction: heightFraction)
+            } else {
+                self.init(color: .gray, heightFraction: heightFraction)
+            }
+        }
+    #elseif canImport(AppKit)
+        public init(
+            image: NSImage,
+            strategy: ImageColorExtractionStrategy,
+            heightFraction: CGFloat = 0.5
+        ) {
+            if let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+                self.init(image: cgImage, strategy: strategy, heightFraction: heightFraction)
+            } else {
+                self.init(color: .gray, heightFraction: heightFraction)
+            }
+        }
+    #endif
+
     public func body(content: Content) -> some View {
-        content
-            .background(
-                Group {
-                    #if os(visionOS)
-                        // visionOS: no gradient
-                    #elseif os(watchOS)
-                        if !isLuminanceReduced {
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    color.opacity(0.5),
-                                    color.opacity(0.2),
-                                ]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        }
-                    #else
-                        LinearGradient(
-                            gradient: Gradient(colors: [
-                                color.opacity(colorScheme == .light ? 1 : 0.5),
-                                Color.clear,
-                            ]),
-                            startPoint: .top,
-                            endPoint: .center
-                        )
-                    #endif
+        content.modifier(
+            PlatformAdaptiveBackground(
+                full: {
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            color.opacity(0.5),
+                            color.opacity(0.2),
+                        ]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                },
+                partial: {
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            color.opacity(colorScheme == .light ? 1 : 0.5),
+                            Color.clear,
+                        ]),
+                        startPoint: .top,
+                        endPoint: UnitPoint(x: 0.5, y: heightFraction)
+                    )
                 }
-                .ignoresSafeArea()
             )
+        )
     }
 }
 
@@ -58,13 +93,82 @@ extension View {
     /// Platform behavior:
     /// - watchOS: The gradient fills the entire screen.
     /// - visionOS: No gradient is applied, to better match visionOS aesthetics.
-    /// - Other platforms (iOS, macOS): The gradient extends approximately halfway down the screen.
+    /// - Other platforms (iOS, macOS): The gradient extends down from the top and fades to clear by `heightFraction` of the view's height.
     ///
-    /// - Parameter color: The base color of the gradient.
+    /// - Parameters:
+    ///   - color: The base color of the gradient.
+    ///   - heightFraction: The fraction of the view's height the gradient fades out over, from `0` (top) to `1` (bottom). Defaults to `0.5`. Ignored on watchOS and visionOS.
     /// - Returns: A view with the accent gradient background applied.
-    public func gradientBackground(color: Color) -> some View {
-        self.modifier(GradientBackgroundModifier(color: color))
+    public func gradientBackground(color: Color, heightFraction: CGFloat = 0.5)
+        -> some View
+    {
+        self.modifier(
+            GradientBackgroundModifier(
+                color: color,
+                heightFraction: heightFraction
+            )
+        )
     }
+
+    /// Applies a platform-adaptive accent gradient background derived from an image's color.
+    ///
+    /// The gradient color is computed once, up front, from `image` using `strategy` — see
+    /// ``gradientBackground(color:heightFraction:)`` for the gradient's platform behavior.
+    ///
+    /// - Parameters:
+    ///   - image: The image to derive the gradient's base color from.
+    ///   - strategy: How to derive a single color from `image`.
+    ///   - heightFraction: The fraction of the view's height the gradient fades out over, from `0` (top) to `1` (bottom). Defaults to `0.5`. Ignored on watchOS and visionOS.
+    /// - Returns: A view with the accent gradient background applied.
+    public func gradientBackground(
+        image: CGImage,
+        strategy: ImageColorExtractionStrategy,
+        heightFraction: CGFloat = 0.5
+    ) -> some View {
+        self.modifier(
+            GradientBackgroundModifier(
+                image: image,
+                strategy: strategy,
+                heightFraction: heightFraction
+            )
+        )
+    }
+
+    #if canImport(UIKit)
+        /// Applies a platform-adaptive accent gradient background derived from an image's color.
+        ///
+        /// See ``gradientBackground(image:strategy:heightFraction:)``.
+        public func gradientBackground(
+            image: UIImage,
+            strategy: ImageColorExtractionStrategy,
+            heightFraction: CGFloat = 0.5
+        ) -> some View {
+            self.modifier(
+                GradientBackgroundModifier(
+                    image: image,
+                    strategy: strategy,
+                    heightFraction: heightFraction
+                )
+            )
+        }
+    #elseif canImport(AppKit)
+        /// Applies a platform-adaptive accent gradient background derived from an image's color.
+        ///
+        /// See ``gradientBackground(image:strategy:heightFraction:)``.
+        public func gradientBackground(
+            image: NSImage,
+            strategy: ImageColorExtractionStrategy,
+            heightFraction: CGFloat = 0.5
+        ) -> some View {
+            self.modifier(
+                GradientBackgroundModifier(
+                    image: image,
+                    strategy: strategy,
+                    heightFraction: heightFraction
+                )
+            )
+        }
+    #endif
 }
 
 #Preview("Simple View") {
@@ -80,9 +184,9 @@ extension View {
             ToolbarItem(
                 placement: {
                     #if os(macOS)
-                    .automatic
+                        .automatic
                     #else
-                    .topBarTrailing
+                        .topBarTrailing
                     #endif
                 }(),
                 content: {
@@ -95,7 +199,7 @@ extension View {
                 }
             )
         }
-        .gradientBackground(color: .red)
+        .gradientBackground(color: .red, heightFraction: 0.5)
     }
 }
 
@@ -118,9 +222,9 @@ extension View {
                 ToolbarItem(
                     placement: {
                         #if os(macOS)
-                        .automatic
+                            .automatic
                         #else
-                        .topBarTrailing
+                            .topBarTrailing
                         #endif
                     }(),
                     content: {
