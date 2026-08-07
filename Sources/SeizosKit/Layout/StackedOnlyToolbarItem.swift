@@ -11,6 +11,12 @@ import SwiftUI
 /// drop-in replacement for `ToolbarItem` at a call site that would otherwise
 /// duplicate an action a simultaneously-visible sibling column already shows.
 ///
+/// Requires `.trackingSplitViewStacked()` on the enclosing `NavigationSplitView`
+/// — see `isSplitViewStacked` for why.
+///
+///     NavigationSplitView(sidebar: { ... }, detail: { ... })
+///         .trackingSplitViewStacked()
+///
 ///     ToolbarItemGroup(placement: .topBarTrailing) {
 ///         StackedOnlyToolbarItem {
 ///             Button("Quick Reference", systemImage: "book") { ... }
