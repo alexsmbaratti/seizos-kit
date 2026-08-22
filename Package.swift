@@ -7,9 +7,9 @@ let package = Package(
     name: "SeizosKit",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v16),
+        .iOS(.v17),
         .macOS(.v14),
-        .watchOS(.v10),
+        .watchOS(.v11),
         .visionOS(.v1),
     ],
     products: [
