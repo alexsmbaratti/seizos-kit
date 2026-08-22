@@ -33,6 +33,9 @@ extension View {
                 .onAppear {
                     UIApplication.shared.isIdleTimerDisabled = disabled
                 }
+                .onChange(of: disabled) { _, newValue in
+                    UIApplication.shared.isIdleTimerDisabled = newValue
+                }
                 .onDisappear {
                     UIApplication.shared.isIdleTimerDisabled = false
                 }
