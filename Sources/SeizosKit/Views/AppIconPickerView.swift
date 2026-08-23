@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// One selectable entry in an app icon picker — either the app's primary/default
+/// One selectable entry in an app icon picker, either the app's primary/default
 /// icon (`id == nil`) or an alternate icon registered via `CFBundleAlternateIcons`.
 public struct AppIconOption: Identifiable {
     public let id: String?
@@ -28,8 +28,8 @@ public struct AppIconOption: Identifiable {
     }
 }
 
-/// The visual content of a single row in an app icon picker — icon preview, name,
-/// optional description, and a checkmark when selected.
+/// The visual content of a single row in an app icon picker. Renders the icon preview, name,
+/// optional description, and a checkmark (when selected).
 ///
 /// Contains no tap handling or icon-switching logic of its own; wrap it in a
 /// `Button` (or other control) to make it interactive.
@@ -151,7 +151,7 @@ public struct AppIconOptionRow: View {
                     AppIconOption(
                         id: "AppIcon-Alternate",
                         displayName: "Alternate",
-                        description: "A limited-time icon.",
+                        description: "An alternate icon",
                         preview: Image(systemName: "app.fill")
                     ),
                 ]
