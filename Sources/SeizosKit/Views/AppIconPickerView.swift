@@ -29,29 +29,50 @@ struct AppIconPickerView: View {
                     Button {
                         select(option)
                     } label: {
-                        HStack {
-                            option.preview
-                                .resizable()
-                                .frame(width: 44, height: 44)
-                                .clipShape(
-                                    RoundedRectangle(
-                                        cornerRadius: 10,
-                                        style: .continuous
-                                    )
-                                )
-
-                            Text(option.displayName)
-                                .foregroundStyle(.primary)
-
-                            Spacer()
-
-                            if selection == option.id {
-                                Image(systemName: "checkmark")
-                                    .foregroundStyle(.tint)
-                            }
-                        }
+                        label(for: option)
                     }
                 }
+            }
+        }
+    }
+
+    private func select(_ option: AppIconOption) {
+        guard selection != option.id else { return }
+
+        #if canImport(UIKit) && os(iOS)
+            UIApplication.shared.setAlternateIconName(option.id) { error in
+                if let error {
+                    print(
+                        "Failed to set alternate icon name: \(error.localizedDescription)"
+                    )
+                    return
+                }
+                selection = option.id
+            }
+        #endif
+    }
+
+    @ViewBuilder
+    private func label(for option: AppIconOption) -> some View {
+        HStack {
+            option.preview
+                .resizable()
+                .frame(width: 44, height: 44)
+                .clipShape(
+                    RoundedRectangle(
+                        cornerRadius: 10,
+                        style: .continuous
+                    )
+                )
+
+            Text(option.displayName)
+                .foregroundStyle(.primary)
+
+            Spacer()
+
+            if selection == option.id {
+                Image(systemName: "checkmark")
+                    .foregroundStyle(.tint)
             }
         }
     }
