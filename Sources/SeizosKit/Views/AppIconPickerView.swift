@@ -7,39 +7,41 @@
 
 import SwiftUI
 
-struct AppIconPickerView: View {
-    let options: [AppIconOption]
-    @State private var selection: String?
+#if os(iOS)
+    /// A list of alternate app icons the user can select from.
+    ///
+    /// Selecting an option updates the app's icon via `UIApplication.setAlternateIconName(_:completionHandler:)`.
+    ///
+    /// Available on iOS only, since alternate app icons are a UIKit/iOS-specific
+    /// feature with no equivalent API on other platforms such as visionOS.
+    struct AppIconPickerView: View {
+        let options: [AppIconOption]
+        @State private var selection: String?
 
-    init(options: [AppIconOption]) {
-        self.options = options
-        #if canImport(UIKit) && os(iOS)
+        init(options: [AppIconOption]) {
+            self.options = options
             _selection = State(
                 initialValue: UIApplication.shared.alternateIconName
             )
-        #else
-            _selection = State(initialValue: nil)
-        #endif
-    }
+        }
 
-    var body: some View {
-        List {
-            Section {
-                ForEach(options) { option in
-                    Button {
-                        select(option)
-                    } label: {
-                        label(for: option)
+        var body: some View {
+            List {
+                Section {
+                    ForEach(options) { option in
+                        Button {
+                            select(option)
+                        } label: {
+                            label(for: option)
+                        }
                     }
                 }
             }
         }
-    }
 
-    private func select(_ option: AppIconOption) {
-        guard selection != option.id else { return }
+        private func select(_ option: AppIconOption) {
+            guard selection != option.id else { return }
 
-        #if canImport(UIKit) && os(iOS)
             UIApplication.shared.setAlternateIconName(option.id) { error in
                 if let error {
                     print(
@@ -49,34 +51,34 @@ struct AppIconPickerView: View {
                 }
                 selection = option.id
             }
-        #endif
-    }
+        }
 
-    @ViewBuilder
-    private func label(for option: AppIconOption) -> some View {
-        HStack {
-            option.preview
-                .resizable()
-                .frame(width: 44, height: 44)
-                .clipShape(
-                    RoundedRectangle(
-                        cornerRadius: 10,
-                        style: .continuous
+        @ViewBuilder
+        private func label(for option: AppIconOption) -> some View {
+            HStack {
+                option.preview
+                    .resizable()
+                    .frame(width: 44, height: 44)
+                    .clipShape(
+                        RoundedRectangle(
+                            cornerRadius: 10,
+                            style: .continuous
+                        )
                     )
-                )
 
-            Text(option.displayName)
-                .foregroundStyle(.primary)
+                Text(option.displayName)
+                    .foregroundStyle(.primary)
 
-            Spacer()
+                Spacer()
 
-            if selection == option.id {
-                Image(systemName: "checkmark")
-                    .foregroundStyle(.tint)
+                if selection == option.id {
+                    Image(systemName: "checkmark")
+                        .foregroundStyle(.tint)
+                }
             }
         }
     }
-}
+#endif
 
 struct AppIconOption: Identifiable {
     let id: String?
