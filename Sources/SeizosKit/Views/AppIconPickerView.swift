@@ -61,7 +61,7 @@ public struct AppIconOptionRow: View {
                 if let description = option.description {
                     Text(description)
                         .font(.subheadline)
-                        .monochromeForegroundStyle(opacity: 0.6)
+                        .monochromeForegroundStyle(.secondary)
                 }
             }
 

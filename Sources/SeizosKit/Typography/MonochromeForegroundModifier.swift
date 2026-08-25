@@ -7,20 +7,32 @@
 
 import SwiftUI
 
-/// Applies a foreground color that resolves to pure white in dark mode and pure black in
-/// light mode, independent of the app's tint/accent color.
+/// The emphasis of a `monochromeForegroundStyle` color, mirroring the primary/secondary
+/// distinction of `ShapeStyle.primary`/`ShapeStyle.secondary`.
+public enum MonochromeForegroundEmphasis {
+    case primary
+    case secondary
+
+    fileprivate var opacity: Double {
+        switch self {
+        case .primary: 1
+        case .secondary: 0.6
+        }
+    }
+}
+
 public struct MonochromeForegroundModifier: ViewModifier {
     @Environment(\.colorScheme) private var colorScheme
 
-    private let opacity: Double
+    private let emphasis: MonochromeForegroundEmphasis
 
-    public init(opacity: Double = 1) {
-        self.opacity = opacity
+    public init(emphasis: MonochromeForegroundEmphasis = .primary) {
+        self.emphasis = emphasis
     }
 
     public func body(content: Content) -> some View {
         content.foregroundStyle(
-            (colorScheme == .dark ? Color.white : Color.black).opacity(opacity)
+            (colorScheme == .dark ? Color.white : Color.black).opacity(emphasis.opacity)
         )
     }
 }
@@ -28,7 +40,9 @@ public struct MonochromeForegroundModifier: ViewModifier {
 extension View {
     /// Applies a foreground color that resolves to pure white in dark mode and pure black in
     /// light mode, independent of the app's tint/accent color.
-    public func monochromeForegroundStyle(opacity: Double = 1) -> some View {
-        modifier(MonochromeForegroundModifier(opacity: opacity))
+    public func monochromeForegroundStyle(
+        _ emphasis: MonochromeForegroundEmphasis = .primary
+    ) -> some View {
+        modifier(MonochromeForegroundModifier(emphasis: emphasis))
     }
 }
