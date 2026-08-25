@@ -56,12 +56,12 @@ public struct AppIconOptionRow: View {
 
             VStack(alignment: .leading) {
                 Text(option.displayName)
-                    .foregroundStyle(.primary)
+                    .monochromeForegroundStyle()
 
                 if let description = option.description {
                     Text(description)
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .monochromeForegroundStyle(opacity: 0.6)
                 }
             }
 
