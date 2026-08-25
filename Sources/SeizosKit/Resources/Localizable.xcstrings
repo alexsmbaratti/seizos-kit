@@ -4,6 +4,17 @@
     "" : {
 
     },
+    "about.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About"
+          }
+        }
+      }
+    },
     "appInfo.accessibilityLabel" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -49,6 +60,17 @@
     },
     "Opens the associated webpage" : {
 
+    },
+    "privacyPolicy.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy Policy"
+          }
+        }
+      }
     },
     "Reveals build number" : {
       "comment" : "A hint that describes the action of tapping the app's version number to reveal the build number.",
