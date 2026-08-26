@@ -23,6 +23,7 @@ public enum MonochromeForegroundEmphasis {
 
 public struct MonochromeForegroundModifier: ViewModifier {
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.isEnabled) private var isEnabled
 
     private let emphasis: MonochromeForegroundEmphasis
 
@@ -31,9 +32,13 @@ public struct MonochromeForegroundModifier: ViewModifier {
     }
 
     public func body(content: Content) -> some View {
-        content.foregroundStyle(
-            (colorScheme == .dark ? Color.white : Color.black).opacity(emphasis.opacity)
-        )
+        if isEnabled {
+            content.foregroundStyle(
+                (colorScheme == .dark ? Color.white : Color.black).opacity(emphasis.opacity)
+            )
+        } else {
+            content
+        }
     }
 }
 
