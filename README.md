@@ -16,9 +16,7 @@ Add SeizosKit to your project using Swift Package Manager:
 1. Enter the repository URL:
 `https://github.com/alexsmbaratti/seizos-kit`
 
-1. Select the package products you want to include:
-* SeizosUI (UI components)
-* SeizosCore (logic/core types)
+1. Select the `SeizosKit` package product.
 
 ## Acknowledgements
 
