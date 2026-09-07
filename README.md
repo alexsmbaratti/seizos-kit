@@ -4,7 +4,7 @@ SeizosKit is a Swift package that provides reusable Swift code for building robu
 
 ## Platforms
 * iOS 17+
-* macOS 15+
+* macOS 14+
 * watchOS 11+
 * visionOS 1+
 
