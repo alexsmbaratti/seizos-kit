@@ -33,7 +33,7 @@ public struct TermsOfUseView: View {
 
                 Text(termsContent)
             }
-            .padding()
+            .padding(.horizontal)
         }
         .task {
             formatTermsContent(termsOfUse)
