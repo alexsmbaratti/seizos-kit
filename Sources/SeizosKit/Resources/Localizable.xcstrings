@@ -37,17 +37,6 @@
         }
       }
     },
-    "dependencyCredits.header" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Version %1$@"
-          }
-        }
-      }
-    },
     "individualCredits.header" : {
       "localizations" : {
         "en" : {
