@@ -22,6 +22,11 @@ public struct TermsOfUseView: View {
         self.lastUpdatedText = lastUpdatedText
     }
 
+    public init(termsOfUse: String, lastUpdated: Date) {
+        self.termsOfUse = termsOfUse
+        self.lastUpdatedText = lastUpdated.formattedLongDate()
+    }
+
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
