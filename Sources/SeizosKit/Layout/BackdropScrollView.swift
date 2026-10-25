@@ -79,29 +79,45 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
                 )
         }
         .scrollBounceBehavior(.basedOnSize)
-        .background(alignment: .top) {
-            if let backdrop {
-                backdrop
-                    .frame(maxWidth: .infinity)
-                    .frame(height: backdropHeight)
-                    .ignoresSafeArea(edges: .horizontal)
-                    .mask(
-                        LinearGradient(
-                            stops: [
-                                .init(color: .black, location: 0.6),
-                                .init(color: .clear, location: 1),
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
+        #if os(iOS) || os(visionOS)
+            // Drawn by the navigation container so the backdrop also fills the area
+            // behind the toolbar, where a view-level background would be clipped.
+            .containerBackground(for: .navigation) {
+                backdropLayer
+                    .frame(maxHeight: .infinity, alignment: .top)
+                    .ignoresSafeArea()
             }
-        }
+        #else
+            .background(alignment: .top) {
+                backdropLayer
+                    .ignoresSafeArea(edges: .horizontal)
+            }
+        #endif
         .ignoresSafeArea(edges: .top)
         .background(.background)
         #if os(iOS) || os(visionOS)
             .toolbarBackground(.hidden, for: .navigationBar)
         #endif
+    }
+
+    /// The backdrop at its fixed height, fading out toward the bottom.
+    @ViewBuilder
+    private var backdropLayer: some View {
+        if let backdrop {
+            backdrop
+                .frame(maxWidth: .infinity)
+                .frame(height: backdropHeight)
+                .mask(
+                    LinearGradient(
+                        stops: [
+                            .init(color: .black, location: 0.6),
+                            .init(color: .clear, location: 1),
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+        }
     }
 }
 
