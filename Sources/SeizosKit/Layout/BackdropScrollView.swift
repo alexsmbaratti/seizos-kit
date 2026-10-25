@@ -79,62 +79,29 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
                 )
         }
         .scrollBounceBehavior(.basedOnSize)
-        .modifier(BackdropBackground(backdrop: backdropLayer))
+        .background(alignment: .top) {
+            if let backdrop {
+                backdrop
+                    .frame(maxWidth: .infinity)
+                    .frame(height: backdropHeight)
+                    .ignoresSafeArea(edges: .horizontal)
+                    .mask(
+                        LinearGradient(
+                            stops: [
+                                .init(color: .black, location: 0.6),
+                                .init(color: .clear, location: 1),
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+            }
+        }
         .ignoresSafeArea(edges: .top)
         .background(.background)
         #if os(iOS) || os(visionOS)
             .toolbarBackground(.hidden, for: .navigationBar)
         #endif
-    }
-
-    /// The backdrop at its fixed height, fading out toward the bottom.
-    @ViewBuilder
-    private var backdropLayer: some View {
-        if let backdrop {
-            backdrop
-                .frame(maxWidth: .infinity)
-                .frame(height: backdropHeight)
-                .mask(
-                    LinearGradient(
-                        stops: [
-                            .init(color: .black, location: 0.6),
-                            .init(color: .clear, location: 1),
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-        }
-    }
-}
-
-/// Places the backdrop behind the view.
-///
-/// Where available, the navigation container draws it so it also fills the area behind the
-/// toolbar, where a view-level background would be clipped.
-private struct BackdropBackground<Backdrop: View>: ViewModifier {
-    let backdrop: Backdrop
-
-    func body(content: Content) -> some View {
-        #if os(iOS) || os(visionOS)
-            if #available(iOS 18, visionOS 2, *) {
-                content.containerBackground(for: .navigation) {
-                    backdrop
-                        .frame(maxHeight: .infinity, alignment: .top)
-                        .ignoresSafeArea()
-                }
-            } else {
-                viewBackground(content)
-            }
-        #else
-            viewBackground(content)
-        #endif
-    }
-
-    private func viewBackground(_ content: Content) -> some View {
-        content.background(alignment: .top) {
-            backdrop.ignoresSafeArea(edges: .horizontal)
-        }
     }
 }
 
