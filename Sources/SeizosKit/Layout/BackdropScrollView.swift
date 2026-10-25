@@ -70,6 +70,7 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
                         Rectangle().fill(.background)
                     }
                     .padding(.top, -fadeHeight)
+                    .ignoresSafeArea(edges: .horizontal)
                 }
                 // Offsets the content so the backdrop shows above it.
                 .padding(
@@ -81,7 +82,9 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
         .background(alignment: .top) {
             if let backdrop {
                 backdrop
+                    .frame(maxWidth: .infinity)
                     .frame(height: backdropHeight)
+                    .ignoresSafeArea(edges: .horizontal)
                     .mask(
                         LinearGradient(
                             stops: [
