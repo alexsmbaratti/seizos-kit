@@ -79,20 +79,7 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
                 )
         }
         .scrollBounceBehavior(.basedOnSize)
-        #if os(iOS) || os(visionOS)
-            // Drawn by the navigation container so the backdrop also fills the area
-            // behind the toolbar, where a view-level background would be clipped.
-            .containerBackground(for: .navigation) {
-                backdropLayer
-                    .frame(maxHeight: .infinity, alignment: .top)
-                    .ignoresSafeArea()
-            }
-        #else
-            .background(alignment: .top) {
-                backdropLayer
-                    .ignoresSafeArea(edges: .horizontal)
-            }
-        #endif
+        .modifier(BackdropBackground(backdrop: backdropLayer))
         .ignoresSafeArea(edges: .top)
         .background(.background)
         #if os(iOS) || os(visionOS)
@@ -117,6 +104,36 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
                         endPoint: .bottom
                     )
                 )
+        }
+    }
+}
+
+/// Places the backdrop behind the view.
+///
+/// Where available, the navigation container draws it so it also fills the area behind the
+/// toolbar, where a view-level background would be clipped.
+private struct BackdropBackground<Backdrop: View>: ViewModifier {
+    let backdrop: Backdrop
+
+    func body(content: Content) -> some View {
+        #if os(iOS) || os(visionOS)
+            if #available(iOS 18, visionOS 2, *) {
+                content.containerBackground(for: .navigation) {
+                    backdrop
+                        .frame(maxHeight: .infinity, alignment: .top)
+                        .ignoresSafeArea()
+                }
+            } else {
+                viewBackground(content)
+            }
+        #else
+            viewBackground(content)
+        #endif
+    }
+
+    private func viewBackground(_ content: Content) -> some View {
+        content.background(alignment: .top) {
+            backdrop.ignoresSafeArea(edges: .horizontal)
         }
     }
 }
