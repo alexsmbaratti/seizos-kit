@@ -70,7 +70,7 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
                         Rectangle().fill(.background)
                     }
                     .padding(.top, -fadeHeight)
-                    .ignoresSafeArea(edges: .horizontal)
+                    .ignoresSafeArea(edges: .all)
                 }
                 // Offsets the content so the backdrop shows above it.
                 .padding(
@@ -84,7 +84,7 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
                 backdrop
                     .frame(maxWidth: .infinity)
                     .frame(height: backdropHeight)
-                    .ignoresSafeArea(edges: .horizontal)
+                    .ignoresSafeArea(edges: .all)
                     .mask(
                         LinearGradient(
                             stops: [
