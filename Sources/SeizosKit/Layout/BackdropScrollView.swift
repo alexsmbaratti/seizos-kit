@@ -23,6 +23,10 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
     private let backdrop: Backdrop?
     private let content: Content
 
+    /// How far the scroll view is pulled past its bottom edge. The backdrop rides up by this
+    /// amount so the bounce doesn't pull the content's top edge away and expose the backdrop.
+    @State private var bottomOverscroll: CGFloat = 0
+
     /// - Parameters:
     ///   - backdropHeight: The height of the backdrop. Ignored when `backdrop` is `nil`.
     ///   - overlap: How far the content overlaps the bottom of the backdrop. Defaults to `120`.
@@ -65,6 +69,7 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
                             endPoint: .bottom
                         )
                     )
+                    .offset(y: -bottomOverscroll)
                     .ignoresSafeArea(.all, edges: [.top, .horizontal])
                     .allowsHitTesting(false)
             }
@@ -101,12 +106,32 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
                     )
             }
             .scrollBounceBehavior(.basedOnSize)
+            .trackingBottomOverscroll($bottomOverscroll)
             .ignoresSafeArea(edges: .top)
         }
         .background(.background)
         #if os(iOS) || os(visionOS)
             .toolbarBackground(.hidden, for: .navigationBar)
         #endif
+    }
+}
+
+private extension View {
+    /// Writes how far the scroll view is pulled past its bottom edge (zero otherwise) to `overscroll`.
+    @ViewBuilder
+    func trackingBottomOverscroll(_ overscroll: Binding<CGFloat>) -> some View {
+        if #available(iOS 18, macOS 15, watchOS 11, visionOS 2, *) {
+            onScrollGeometryChange(for: CGFloat.self) { geometry in
+                let maxOffset =
+                    geometry.contentSize.height + geometry.contentInsets.bottom
+                    - geometry.containerSize.height
+                return max(0, geometry.contentOffset.y - maxOffset)
+            } action: { _, newValue in
+                overscroll.wrappedValue = newValue
+            }
+        } else {
+            self
+        }
     }
 }
 
