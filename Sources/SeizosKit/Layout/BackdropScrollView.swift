@@ -47,44 +47,14 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
     }
 
     public var body: some View {
-        ScrollView {
-            content
-                .frame(maxWidth: .infinity, alignment: .leading)
-                // Dissolves the backdrop into the background, then stays opaque so
-                // content scrolling up covers the fixed backdrop.
-                .background(alignment: .top) {
-                    VStack(spacing: 0) {
-                        ZStack {
-                            Rectangle().fill(.ultraThinMaterial)
-                            Rectangle().fill(.background)
-                        }
-                        .mask(
-                            LinearGradient(
-                                colors: [.clear, .black],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                        .frame(height: fadeHeight)
-
-                        Rectangle().fill(.background)
-                    }
-                    .padding(.top, -fadeHeight)
-                    .ignoresSafeArea(edges: .horizontal)
-                }
-                // Offsets the content so the backdrop shows above it.
-                .padding(
-                    .top,
-                    backdrop == nil ? fallbackTopPadding : backdropHeight - overlap
-                )
-        }
-        .scrollBounceBehavior(.basedOnSize)
-        .background(alignment: .top) {
+        // EXPERIMENT (Duo): the backdrop is a sibling layer behind the scroll view rather than the
+        // scroll view's own `.background`, so it is sized against the full screen instead of the
+        // scroll view's safe-area-constrained bounds.
+        ZStack(alignment: .top) {
             if let backdrop {
                 backdrop
                     .frame(maxWidth: .infinity)
                     .frame(height: backdropHeight)
-                    .ignoresSafeArea(edges: .horizontal)
                     .mask(
                         LinearGradient(
                             stops: [
@@ -95,9 +65,44 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
                             endPoint: .bottom
                         )
                     )
+                    .ignoresSafeArea(.all, edges: [.top, .horizontal])
+                    .allowsHitTesting(false)
             }
+
+            ScrollView {
+                content
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    // Dissolves the backdrop into the background, then stays opaque so
+                    // content scrolling up covers the fixed backdrop.
+                    .background(alignment: .top) {
+                        VStack(spacing: 0) {
+                            ZStack {
+                                Rectangle().fill(.ultraThinMaterial)
+                                Rectangle().fill(.background)
+                            }
+                            .mask(
+                                LinearGradient(
+                                    colors: [.clear, .black],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .frame(height: fadeHeight)
+
+                            Rectangle().fill(.background)
+                        }
+                        .padding(.top, -fadeHeight)
+                        .ignoresSafeArea(edges: .horizontal)
+                    }
+                    // Offsets the content so the backdrop shows above it.
+                    .padding(
+                        .top,
+                        backdrop == nil ? fallbackTopPadding : backdropHeight - overlap
+                    )
+            }
+            .scrollBounceBehavior(.basedOnSize)
+            .ignoresSafeArea(edges: .top)
         }
-        .ignoresSafeArea(edges: .top)
         .background(.background)
         #if os(iOS) || os(visionOS)
             .toolbarBackground(.hidden, for: .navigationBar)
