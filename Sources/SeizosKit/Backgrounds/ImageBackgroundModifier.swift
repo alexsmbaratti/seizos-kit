@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// TODO: Replace with a ScrollView implementation
 public struct ImageBackgroundModifier: ViewModifier {
     private let image: Image
     private let heightFraction: CGFloat
