@@ -19,6 +19,7 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
     private let backdropHeight: CGFloat
     private let overlap: CGFloat
     private let fadeHeight: CGFloat
+    private let contentOffset: CGFloat
     private let backdrop: Backdrop?
     private let content: Content
 
@@ -30,18 +31,23 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
     ///   - backdropHeight: The height of the backdrop. Ignored when `backdrop` is `nil`.
     ///   - overlap: How far the content overlaps the bottom of the backdrop. Defaults to `120`.
     ///   - fadeHeight: The height of the dissolve between the backdrop and the content. Defaults to `160`.
+    ///   - contentOffset: A vertical offset applied to the content (not the dissolve or fill) when a
+    ///     backdrop is shown, so it can ride up over the backdrop. Negative values move it up.
+    ///     Defaults to `0`. Ignored when `backdrop` is `nil`.
     ///   - backdrop: The backdrop to display. Pass `nil` to show only the content.
     ///   - content: The scrolling content.
     public init(
         backdropHeight: CGFloat,
         overlap: CGFloat = 120,
         fadeHeight: CGFloat = 160,
+        contentOffset: CGFloat = 0,
         backdrop: Backdrop?,
         @ViewBuilder content: () -> Content
     ) {
         self.backdropHeight = backdropHeight
         self.overlap = overlap
         self.fadeHeight = fadeHeight
+        self.contentOffset = contentOffset
         self.backdrop = backdrop
         self.content = content()
     }
@@ -81,6 +87,7 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
 
             ScrollView {
                 content
+                    .offset(y: contentOffset)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     // Dissolves the backdrop into the background, then stays opaque so
                     // content scrolling up covers the fixed backdrop.
