@@ -84,7 +84,14 @@ public struct MapBackdropScrollView<Content: View>: View {
                 .tint(markerTint)
         }
         .mapStyle(.standard)
+        // `initialPosition` is only read on creation, so a new location needs a new map.
+        .id(MapKey(latitude: coordinate.latitude, longitude: coordinate.longitude))
     }
+}
+
+private struct MapKey: Hashable {
+    let latitude: Double
+    let longitude: Double
 }
 
 #Preview {
