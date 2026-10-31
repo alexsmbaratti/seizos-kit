@@ -10,7 +10,7 @@ import SwiftUI
 
 /// A ``BackdropScrollView`` whose backdrop is a non-interactive map with a marker.
 ///
-/// When `coordinate` is `nil`, no map is shown and the content is offset by `fallbackTopPadding`.
+/// When `coordinate` is `nil`, no map is shown and this is a plain scroll view.
 public struct MapBackdropScrollView<Content: View>: View {
     private let coordinate: CLLocationCoordinate2D?
     private let markerTitle: String
@@ -18,7 +18,6 @@ public struct MapBackdropScrollView<Content: View>: View {
     private let mapHeight: CGFloat
     private let overlap: CGFloat
     private let fadeHeight: CGFloat
-    private let fallbackTopPadding: CGFloat
     private let content: Content
 
     /// - Parameters:
@@ -28,7 +27,6 @@ public struct MapBackdropScrollView<Content: View>: View {
     ///   - mapHeight: The height of the map. Defaults to `420`.
     ///   - overlap: How far the content overlaps the bottom of the map. Defaults to `120`.
     ///   - fadeHeight: The height of the dissolve between the map and the content. Defaults to `160`.
-    ///   - fallbackTopPadding: The padding above the content when there is no map. Defaults to `80`.
     ///   - content: The scrolling content.
     public init(
         coordinate: CLLocationCoordinate2D?,
@@ -37,7 +35,6 @@ public struct MapBackdropScrollView<Content: View>: View {
         mapHeight: CGFloat = 420,
         overlap: CGFloat = 120,
         fadeHeight: CGFloat = 160,
-        fallbackTopPadding: CGFloat = 80,
         @ViewBuilder content: () -> Content
     ) {
         self.coordinate = coordinate
@@ -46,7 +43,6 @@ public struct MapBackdropScrollView<Content: View>: View {
         self.mapHeight = mapHeight
         self.overlap = overlap
         self.fadeHeight = fadeHeight
-        self.fallbackTopPadding = fallbackTopPadding
         self.content = content()
     }
 
@@ -55,7 +51,6 @@ public struct MapBackdropScrollView<Content: View>: View {
             backdropHeight: mapHeight,
             overlap: overlap,
             fadeHeight: fadeHeight,
-            fallbackTopPadding: fallbackTopPadding,
             backdrop: coordinate.map { map(at: $0) }
         ) {
             content
