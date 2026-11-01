@@ -51,42 +51,111 @@ public struct MapBackdropScrollView<Content: View>: View {
         self.content = content()
     }
 
+    /// How far the visible area's center sits right of the map's center, from the safe area.
+    /// On iPad the sidebar floats over the detail column and shows up as a leading safe-area inset.
+    @State private var centerShift: CGFloat = 0
+
     public var body: some View {
         BackdropScrollView(
             backdropHeight: mapHeight,
             overlap: overlap,
             fadeHeight: fadeHeight,
             contentOffset: contentOffset,
-            backdrop: coordinate.map { map(at: $0) }
+            backdrop: coordinate.map { coordinate in
+                OffsetMap(
+                    coordinate: coordinate,
+                    markerTitle: markerTitle,
+                    markerTint: markerTint,
+                    shift: centerShift
+                )
+                // `initialPosition` is only read on creation, so a new location needs a new map.
+                .id(MapKey(latitude: coordinate.latitude, longitude: coordinate.longitude))
+            }
         ) {
             content
         }
+        .background {
+            GeometryReader { proxy in
+                let insets = proxy.safeAreaInsets
+                Color.clear
+                    .onChange(of: (insets.leading - insets.trailing) / 2, initial: true) { _, shift in
+                        centerShift = shift
+                    }
+            }
+        }
+    }
+}
+
+/// A non-interactive map that keeps its marker centered in the part of the map that isn't
+/// covered, shifting the camera by `shift` points as the covered area changes.
+private struct OffsetMap: View {
+    let coordinate: CLLocationCoordinate2D
+    let markerTitle: String
+    let markerTint: Color
+    let shift: CGFloat
+
+    private static let span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+
+    @State private var position: MapCameraPosition
+    @State private var appliedShift: CGFloat = 0
+
+    // Centered south of the pin so it sits in the upper part of the map, clear of the dissolve.
+    private var baseCenter: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: coordinate.latitude - 0.001, longitude: coordinate.longitude)
     }
 
-    private func map(at coordinate: CLLocationCoordinate2D) -> some View {
-        Map(
-            initialPosition: .region(
+    init(coordinate: CLLocationCoordinate2D, markerTitle: String, markerTint: Color, shift: CGFloat) {
+        self.coordinate = coordinate
+        self.markerTitle = markerTitle
+        self.markerTint = markerTint
+        self.shift = shift
+        _position = State(
+            initialValue: .region(
                 MKCoordinateRegion(
-                    // Centered south of the pin so it sits in the upper part
-                    // of the map, clear of the dissolve.
                     center: CLLocationCoordinate2D(
                         latitude: coordinate.latitude - 0.001,
                         longitude: coordinate.longitude
                     ),
-                    span: MKCoordinateSpan(
-                        latitudeDelta: 0.01,
-                        longitudeDelta: 0.01
-                    )
+                    span: Self.span
                 )
-            ),
-            interactionModes: []
-        ) {
-            Marker(markerTitle, coordinate: coordinate)
-                .tint(markerTint)
+            )
+        )
+    }
+
+    var body: some View {
+        GeometryReader { geometry in
+            MapReader { proxy in
+                Map(position: $position, interactionModes: []) {
+                    Marker(markerTitle, coordinate: coordinate)
+                        .tint(markerTint)
+                }
+                .mapStyle(.standard)
+                .onChange(of: shift) { recenter(proxy, in: geometry.size) }
+                .onChange(of: geometry.size) { recenter(proxy, in: geometry.size) }
+                // The projection isn't available until the first camera settles.
+                .onMapCameraChange(frequency: .onEnd) { _ in recenter(proxy, in: geometry.size) }
+            }
         }
-        .mapStyle(.standard)
-        // `initialPosition` is only read on creation, so a new location needs a new map.
-        .id(MapKey(latitude: coordinate.latitude, longitude: coordinate.longitude))
+    }
+
+    private func recenter(_ proxy: MapProxy, in size: CGSize) {
+        guard shift != appliedShift, size.width > 0,
+            let origin = proxy.convert(CGPoint(x: size.width / 2, y: size.height / 2), from: .local),
+            let step = proxy.convert(CGPoint(x: size.width / 2 + 1, y: size.height / 2), from: .local)
+        else { return }
+        let degreesPerPoint = step.longitude - origin.longitude
+        appliedShift = shift
+        withAnimation(.smooth) {
+            position = .region(
+                MKCoordinateRegion(
+                    center: CLLocationCoordinate2D(
+                        latitude: baseCenter.latitude,
+                        longitude: baseCenter.longitude - Double(shift) * degreesPerPoint
+                    ),
+                    span: Self.span
+                )
+            )
+        }
     }
 }
 
