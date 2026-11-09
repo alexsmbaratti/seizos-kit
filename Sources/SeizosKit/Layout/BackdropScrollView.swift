@@ -1,0 +1,166 @@
+//
+//  BackdropScrollView.swift
+//  SeizosKit
+//
+//  Created by Alex Baratti on 10/18/26.
+//
+
+import SwiftUI
+
+/// A scroll view that shows a fixed backdrop behind its content, with the content offset so the
+/// backdrop is visible above it. When `backdrop` is `nil` this is a plain `ScrollView`.
+///
+/// The backdrop stays in place while the content scrolls up over it. The top of the content
+/// dissolves the backdrop into the background, then stays opaque so scrolled content fully
+/// covers it. The backdrop extends under the navigation bar.
+///
+/// Use ``MapBackdropScrollView`` for a map backdrop.
+public struct BackdropScrollView<Backdrop: View, Content: View>: View {
+    private let backdropHeight: CGFloat
+    private let overlap: CGFloat
+    private let fadeHeight: CGFloat
+    private let contentOffset: CGFloat
+    private let backdrop: Backdrop?
+    private let content: Content
+
+    /// How far the scroll view is pulled past its bottom edge. The backdrop rides up by this
+    /// amount so the bounce doesn't pull the content's top edge away and expose the backdrop.
+    @State private var bottomOverscroll: CGFloat = 0
+
+    /// - Parameters:
+    ///   - backdropHeight: The height of the backdrop. Ignored when `backdrop` is `nil`.
+    ///   - overlap: How far the content overlaps the bottom of the backdrop. Defaults to `120`.
+    ///   - fadeHeight: The height of the dissolve between the backdrop and the content. Defaults to `160`.
+    ///   - contentOffset: A vertical offset applied to the content (not the dissolve or fill) when a
+    ///     backdrop is shown, so it can ride up over the backdrop. Negative values move it up.
+    ///     Defaults to `0`. Ignored when `backdrop` is `nil`.
+    ///   - backdrop: The backdrop to display. Pass `nil` to show only the content.
+    ///   - content: The scrolling content.
+    public init(
+        backdropHeight: CGFloat,
+        overlap: CGFloat = 120,
+        fadeHeight: CGFloat = 160,
+        contentOffset: CGFloat = 0,
+        backdrop: Backdrop?,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.backdropHeight = backdropHeight
+        self.overlap = overlap
+        self.fadeHeight = fadeHeight
+        self.contentOffset = contentOffset
+        self.backdrop = backdrop
+        self.content = content()
+    }
+
+    public var body: some View {
+        if let backdrop {
+            backdropLayout(backdrop)
+        } else {
+            ScrollView {
+                content
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+
+    private func backdropLayout(_ backdrop: Backdrop) -> some View {
+        // EXPERIMENT (Duo): the backdrop is a sibling layer behind the scroll view rather than the
+        // scroll view's own `.background`, so it is sized against the full screen instead of the
+        // scroll view's safe-area-constrained bounds.
+        ZStack(alignment: .top) {
+            backdrop
+                .frame(maxWidth: .infinity)
+                .frame(height: backdropHeight)
+                .mask(
+                    LinearGradient(
+                        stops: [
+                            .init(color: .black, location: 0.6),
+                            .init(color: .clear, location: 1),
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .offset(y: -bottomOverscroll)
+                .ignoresSafeArea(.all, edges: [.top, .horizontal])
+                .allowsHitTesting(false)
+
+            ScrollView {
+                content
+                    .offset(y: contentOffset)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    // Dissolves the backdrop into the background, then stays opaque so
+                    // content scrolling up covers the fixed backdrop.
+                    .background(alignment: .top) {
+                        VStack(spacing: 0) {
+                            ZStack {
+                                Rectangle().fill(.ultraThinMaterial)
+                                Rectangle().fill(.background)
+                            }
+                            .mask(
+                                LinearGradient(
+                                    colors: [.clear, .black],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .frame(height: fadeHeight)
+
+                            Rectangle().fill(.background)
+                        }
+                        .padding(.top, -fadeHeight)
+                        .ignoresSafeArea(edges: .horizontal)
+                    }
+                    // Offsets the content so the backdrop shows above it.
+                    .padding(.top, backdropHeight - overlap)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+            .trackingBottomOverscroll($bottomOverscroll)
+            .ignoresSafeArea(edges: .top)
+        }
+        .background(.background)
+        #if os(iOS) || os(visionOS)
+            .toolbarBackground(.hidden, for: .navigationBar)
+        #endif
+    }
+}
+
+private extension View {
+    /// Writes how far the scroll view is pulled past its bottom edge (zero otherwise) to `overscroll`.
+    @ViewBuilder
+    func trackingBottomOverscroll(_ overscroll: Binding<CGFloat>) -> some View {
+        if #available(iOS 18, macOS 15, watchOS 11, visionOS 2, *) {
+            onScrollGeometryChange(for: CGFloat.self) { geometry in
+                let maxOffset =
+                    geometry.contentSize.height + geometry.contentInsets.bottom
+                    - geometry.containerSize.height
+                return max(0, geometry.contentOffset.y - maxOffset)
+            } action: { _, newValue in
+                overscroll.wrappedValue = newValue
+            }
+        } else {
+            self
+        }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        BackdropScrollView(
+            backdropHeight: 420,
+            backdrop: LinearGradient(
+                colors: [.pink, .orange],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        ) {
+            VStack(alignment: .leading, spacing: 24) {
+                LeadingHeading("Backdrop Scroll View")
+                ForEach(0..<20) { index in
+                    Text("Row \(index)")
+                }
+            }
+            .padding()
+        }
+    }
+}
