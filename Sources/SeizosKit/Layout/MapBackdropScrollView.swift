@@ -15,6 +15,7 @@ public struct MapBackdropScrollView<Content: View>: View {
     private let coordinate: CLLocationCoordinate2D?
     private let markerTitle: String
     private let markerTint: Color
+    private let markerSymbol: MapMarkerSymbol?
     private let mapHeight: CGFloat
     private let overlap: CGFloat
     private let fadeHeight: CGFloat
@@ -25,6 +26,8 @@ public struct MapBackdropScrollView<Content: View>: View {
     ///   - coordinate: The location to show and mark, or `nil` to omit the map.
     ///   - markerTitle: The title of the marker.
     ///   - markerTint: The tint of the marker. Defaults to `.red`.
+    ///   - markerSymbol: The SF Symbol or custom symbol shown in the marker. Defaults to `nil`,
+    ///     which uses the standard marker.
     ///   - mapHeight: The height of the map. Defaults to `420`.
     ///   - overlap: How far the content overlaps the bottom of the map. Defaults to `120`.
     ///   - fadeHeight: The height of the dissolve between the map and the content. Defaults to `160`.
@@ -35,6 +38,7 @@ public struct MapBackdropScrollView<Content: View>: View {
         coordinate: CLLocationCoordinate2D?,
         markerTitle: String,
         markerTint: Color = .red,
+        markerSymbol: MapMarkerSymbol? = nil,
         mapHeight: CGFloat = 420,
         overlap: CGFloat = 120,
         fadeHeight: CGFloat = 160,
@@ -44,6 +48,7 @@ public struct MapBackdropScrollView<Content: View>: View {
         self.coordinate = coordinate
         self.markerTitle = markerTitle
         self.markerTint = markerTint
+        self.markerSymbol = markerSymbol
         self.mapHeight = mapHeight
         self.overlap = overlap
         self.fadeHeight = fadeHeight
@@ -81,13 +86,37 @@ public struct MapBackdropScrollView<Content: View>: View {
             ),
             interactionModes: []
         ) {
-            Marker(markerTitle, coordinate: coordinate)
+            switch markerSymbol {
+            case .system(let name):
+                Marker(markerTitle, systemImage: name, coordinate: coordinate)
+                    .tint(markerTint)
+            case .custom(let name):
+                Marker(markerTitle, image: name, coordinate: coordinate)
+                    .tint(markerTint)
+            case .resource(let resource):
+                Marker(coordinate: coordinate) {
+                    Label(markerTitle, image: resource)
+                }
                 .tint(markerTint)
+            case nil:
+                Marker(markerTitle, coordinate: coordinate)
+                    .tint(markerTint)
+            }
         }
         .mapStyle(.standard)
         // `initialPosition` is only read on creation, so a new location needs a new map.
         .id(MapKey(latitude: coordinate.latitude, longitude: coordinate.longitude))
     }
+}
+
+/// The symbol drawn inside a map marker.
+public enum MapMarkerSymbol {
+    /// An SF Symbol, by name.
+    case system(String)
+    /// A custom symbol or image in the main bundle's asset catalog, by name.
+    case custom(String)
+    /// A custom symbol or image from any bundle, such as a generated `ImageResource`.
+    case resource(ImageResource)
 }
 
 private struct MapKey: Hashable {
@@ -100,7 +129,8 @@ private struct MapKey: Hashable {
         MapBackdropScrollView(
             coordinate: CLLocationCoordinate2D(latitude: 35.0394, longitude: 135.7292),
             markerTitle: "Kinkaku-ji",
-            markerTint: .pink
+            markerTint: .pink,
+            markerSymbol: .system("building.columns.fill")
         ) {
             VStack(alignment: .leading, spacing: 24) {
                 LeadingHeading("Map Backdrop Scroll View")
