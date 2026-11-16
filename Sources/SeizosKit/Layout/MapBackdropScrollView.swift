@@ -173,7 +173,7 @@ private struct OffsetMap: View {
         else { return }
         let degreesPerPoint = step.longitude - origin.longitude
         appliedShift = shift
-        withAnimation(.smooth) {
+        withAnimation(.smooth(duration: 0.25)) {
             position = .region(
                 MKCoordinateRegion(
                     center: CLLocationCoordinate2D(
