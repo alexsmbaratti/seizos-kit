@@ -105,7 +105,6 @@ private struct OffsetMap: View {
 
     @State private var position: MapCameraPosition
     @State private var appliedShift: CGFloat = 0
-    @State private var hasPlaced = false
 
     // Centered south of the pin so it sits in the upper part of the map, clear of the dissolve.
     private var baseCenter: CLLocationCoordinate2D {
@@ -159,49 +158,33 @@ private struct OffsetMap: View {
                     }
                 }
                 .mapStyle(.standard)
-                // The projection isn't available until the map has rendered, and a map created
-                // with a non-zero shift never reports a camera change, so poll until it is ready.
-                .task(id: RecenterKey(shift: shift, size: geometry.size)) {
-                    for _ in 0..<40 {
-                        if recenter(proxy, in: geometry.size) { return }
-                        try? await Task.sleep(for: .milliseconds(50))
-                        if Task.isCancelled { return }
-                    }
-                }
+                .onChange(of: shift) { recenter(proxy, in: geometry.size) }
+                .onChange(of: geometry.size) { recenter(proxy, in: geometry.size) }
+                // The projection isn't available until the first camera settles.
+                .onMapCameraChange(frequency: .onEnd) { _ in recenter(proxy, in: geometry.size) }
             }
         }
     }
 
-    /// Returns `true` once the camera reflects `shift`, or `false` if the map isn't ready yet.
-    private func recenter(_ proxy: MapProxy, in size: CGSize) -> Bool {
-        guard size.width > 0 else { return false }
-        guard shift != appliedShift else { return true }
-        guard let origin = proxy.convert(CGPoint(x: size.width / 2, y: size.height / 2), from: .local),
+    private func recenter(_ proxy: MapProxy, in size: CGSize) {
+        guard shift != appliedShift, size.width > 0,
+            let origin = proxy.convert(CGPoint(x: size.width / 2, y: size.height / 2), from: .local),
             let step = proxy.convert(CGPoint(x: size.width / 2 + 1, y: size.height / 2), from: .local)
-        else { return false }
+        else { return }
         let degreesPerPoint = step.longitude - origin.longitude
-        let region = MKCoordinateRegion(
-            center: CLLocationCoordinate2D(
-                latitude: baseCenter.latitude,
-                longitude: baseCenter.longitude - Double(shift) * degreesPerPoint
-            ),
-            span: Self.span
-        )
-        // The first placement happens as the map appears, so it shouldn't visibly slide.
-        if hasPlaced {
-            withAnimation(.smooth(duration: 0.25)) { position = .region(region) }
-        } else {
-            position = .region(region)
-            hasPlaced = true
-        }
         appliedShift = shift
-        return true
+        withAnimation(.smooth(duration: 0.25)) {
+            position = .region(
+                MKCoordinateRegion(
+                    center: CLLocationCoordinate2D(
+                        latitude: baseCenter.latitude,
+                        longitude: baseCenter.longitude - Double(shift) * degreesPerPoint
+                    ),
+                    span: Self.span
+                )
+            )
+        }
     }
-}
-
-private struct RecenterKey: Equatable {
-    let shift: CGFloat
-    let size: CGSize
 }
 
 /// The symbol drawn inside a map marker.
