@@ -59,6 +59,7 @@ public struct MapBackdropScrollView<Content: View>: View {
     /// How far the visible area's center sits right of the map's center, from the safe area.
     /// On iPad the sidebar floats over the detail column and shows up as a leading safe-area inset.
     @State private var centerShift: CGFloat = 0
+    @State private var hasMeasured = false
 
     public var body: some View {
         BackdropScrollView(
@@ -85,15 +86,23 @@ public struct MapBackdropScrollView<Content: View>: View {
                 let insets = proxy.safeAreaInsets
                 Color.clear
                     .onChange(of: (insets.leading - insets.trailing) / 2, initial: true) { _, shift in
-                        centerShift = shift
+                        // The first measurement happens as the map appears, so it shouldn't slide.
+                        if hasMeasured {
+                            withAnimation(.smooth(duration: 0.25)) { centerShift = shift }
+                        } else {
+                            centerShift = shift
+                            hasMeasured = true
+                        }
                     }
             }
         }
     }
 }
 
-/// A non-interactive map that keeps its marker centered in the part of the map that isn't
-/// covered, shifting the camera by `shift` points as the covered area changes.
+/// A non-interactive map whose center sits `shift` points right of the container's center.
+///
+/// The camera stays fixed on the marker. The map view is made twice as wide as the container and
+/// moved instead, so its center, and with it the marker, lands in the part that isn't covered.
 private struct OffsetMap: View {
     let coordinate: CLLocationCoordinate2D
     let markerTitle: String
@@ -101,89 +110,52 @@ private struct OffsetMap: View {
     let markerSymbol: MapMarkerSymbol?
     let shift: CGFloat
 
-    private static let span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-
-    @State private var position: MapCameraPosition
-    @State private var appliedShift: CGFloat = 0
-
-    // Centered south of the pin so it sits in the upper part of the map, clear of the dissolve.
-    private var baseCenter: CLLocationCoordinate2D {
-        CLLocationCoordinate2D(latitude: coordinate.latitude - 0.001, longitude: coordinate.longitude)
+    var body: some View {
+        GeometryReader { geometry in
+            map
+                // Wide enough to still cover the container wherever the center moves to.
+                .frame(width: geometry.size.width * 2, height: geometry.size.height)
+                .position(x: geometry.size.width / 2 + shift, y: geometry.size.height / 2)
+        }
+        .clipped()
     }
 
-    init(
-        coordinate: CLLocationCoordinate2D,
-        markerTitle: String,
-        markerTint: Color,
-        markerSymbol: MapMarkerSymbol?,
-        shift: CGFloat
-    ) {
-        self.coordinate = coordinate
-        self.markerTitle = markerTitle
-        self.markerTint = markerTint
-        self.markerSymbol = markerSymbol
-        self.shift = shift
-        _position = State(
-            initialValue: .region(
+    private var map: some View {
+        Map(
+            initialPosition: .region(
                 MKCoordinateRegion(
+                    // Centered south of the pin so it sits in the upper part
+                    // of the map, clear of the dissolve.
                     center: CLLocationCoordinate2D(
                         latitude: coordinate.latitude - 0.001,
                         longitude: coordinate.longitude
                     ),
-                    span: Self.span
+                    span: MKCoordinateSpan(
+                        latitudeDelta: 0.01,
+                        longitudeDelta: 0.01
+                    )
                 )
-            )
-        )
-    }
-
-    var body: some View {
-        GeometryReader { geometry in
-            MapReader { proxy in
-                Map(position: $position, interactionModes: []) {
-                    switch markerSymbol {
-                    case .system(let name):
-                        Marker(markerTitle, systemImage: name, coordinate: coordinate)
-                            .tint(markerTint)
-                    case .custom(let name):
-                        Marker(markerTitle, image: name, coordinate: coordinate)
-                            .tint(markerTint)
-                    case .resource(let resource):
-                        Marker(coordinate: coordinate) {
-                            Label(markerTitle, image: resource)
-                        }
-                        .tint(markerTint)
-                    case nil:
-                        Marker(markerTitle, coordinate: coordinate)
-                            .tint(markerTint)
-                    }
+            ),
+            interactionModes: []
+        ) {
+            switch markerSymbol {
+            case .system(let name):
+                Marker(markerTitle, systemImage: name, coordinate: coordinate)
+                    .tint(markerTint)
+            case .custom(let name):
+                Marker(markerTitle, image: name, coordinate: coordinate)
+                    .tint(markerTint)
+            case .resource(let resource):
+                Marker(coordinate: coordinate) {
+                    Label(markerTitle, image: resource)
                 }
-                .mapStyle(.standard)
-                .onChange(of: shift) { recenter(proxy, in: geometry.size) }
-                .onChange(of: geometry.size) { recenter(proxy, in: geometry.size) }
-                // The projection isn't available until the first camera settles.
-                .onMapCameraChange(frequency: .onEnd) { _ in recenter(proxy, in: geometry.size) }
+                .tint(markerTint)
+            case nil:
+                Marker(markerTitle, coordinate: coordinate)
+                    .tint(markerTint)
             }
         }
-    }
-
-    private func recenter(_ proxy: MapProxy, in size: CGSize) {
-        guard shift != appliedShift, size.width > 0,
-            let origin = proxy.convert(CGPoint(x: size.width / 2, y: size.height / 2), from: .local),
-            let step = proxy.convert(CGPoint(x: size.width / 2 + 1, y: size.height / 2), from: .local)
-        else { return }
-        let degreesPerPoint = step.longitude - origin.longitude
-        appliedShift = shift
-        withAnimation(.smooth(duration: 0.25)) {
-            position = .region(
-                MKCoordinateRegion(
-                    center: CLLocationCoordinate2D(
-                        latitude: baseCenter.latitude,
-                        longitude: baseCenter.longitude - Double(shift) * degreesPerPoint
-                    ),
-                    span: Self.span
-                )
-            )
-        }
+        .mapStyle(.standard)
     }
 }
 
