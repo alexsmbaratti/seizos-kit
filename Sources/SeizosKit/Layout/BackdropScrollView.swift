@@ -63,6 +63,18 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
         }
     }
 
+    /// Stops for the dissolve, following an ease-in curve. A linear ramp darkens the backdrop too
+    /// early (in dark mode it muddies the middle of the map); easing keeps the top of the fade
+    /// clear and concentrates the opacity near the content.
+    private static var easedFadeStops: [Gradient.Stop] {
+        let steps = 12
+        let exponent = 2.4
+        return (0...steps).map { step in
+            let t = Double(step) / Double(steps)
+            return .init(color: .black.opacity(pow(t, exponent)), location: t)
+        }
+    }
+
     private func backdropLayout(_ backdrop: Backdrop) -> some View {
         // EXPERIMENT (Duo): the backdrop is a sibling layer behind the scroll view rather than the
         // scroll view's own `.background`, so it is sized against the full screen instead of the
@@ -99,7 +111,7 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
                             }
                             .mask(
                                 LinearGradient(
-                                    colors: [.clear, .black],
+                                    stops: Self.easedFadeStops,
                                     startPoint: .top,
                                     endPoint: .bottom
                                 )
