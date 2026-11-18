@@ -64,7 +64,7 @@ public struct BackdropScrollView<Backdrop: View, Content: View>: View {
     }
 
     /// Stops for the dissolve, following an ease-in curve. A linear ramp darkens the backdrop too
-    /// early (in dark mode it muddies the middle of the map); easing keeps the top of the fade
+    /// early (in dark mode it muddies the middle of the backdrop content); easing keeps the top of the fade
     /// clear and concentrates the opacity near the content.
     private static var easedFadeStops: [Gradient.Stop] {
         let steps = 12
