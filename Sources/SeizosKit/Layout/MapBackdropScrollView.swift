@@ -115,7 +115,11 @@ private struct OffsetMap: View {
             map
                 // Wide enough to still cover the container wherever the center moves to.
                 .frame(width: geometry.size.width * 2, height: geometry.size.height)
-                .position(x: geometry.size.width / 2 + shift, y: geometry.size.height / 2)
+                // An offset moves the rendered map without re-running layout on it every frame,
+                // which `position` would, and that made the animation choppy. The map's leading
+                // edge sits at the container's, so its center starts at `width`; this brings it
+                // to `width / 2 + shift`.
+                .offset(x: shift - geometry.size.width / 2)
         }
         .clipped()
     }
