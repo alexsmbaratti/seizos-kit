@@ -73,7 +73,8 @@ public struct MapBackdropScrollView<Content: View>: View {
                     markerTitle: markerTitle,
                     markerTint: markerTint,
                     markerSymbol: markerSymbol,
-                    shift: centerShift
+                    shift: centerShift,
+                    bottomInset: overlap + fadeHeight
                 )
                 // `initialPosition` is only read on creation, so a new location needs a new map.
                 .id(MapKey(latitude: coordinate.latitude, longitude: coordinate.longitude))
@@ -101,38 +102,40 @@ public struct MapBackdropScrollView<Content: View>: View {
 
 /// A non-interactive map whose center sits `shift` points right of the container's center.
 ///
-/// The camera stays fixed on the marker. The map view is made twice as wide as the container and
-/// moved instead, so its center, and with it the marker, lands in the part that isn't covered.
+/// The camera stays fixed on the marker. Reserving `2 * shift` points on one side as safe area
+/// moves the center of the map's usable area by `shift`, and the marker with it. Apple's logo and
+/// Legal link sit in the corners of that usable area, so they stay visible: they clear the part
+/// that isn't covered by a sidebar and, at the bottom, the content and its dissolve.
 private struct OffsetMap: View {
     let coordinate: CLLocationCoordinate2D
     let markerTitle: String
     let markerTint: Color
     let markerSymbol: MapMarkerSymbol?
     let shift: CGFloat
+    /// How much of the map's bottom edge is covered by the content and its dissolve.
+    let bottomInset: CGFloat
 
     var body: some View {
-        GeometryReader { geometry in
-            map
-                // Wide enough to still cover the container wherever the center moves to.
-                .frame(width: geometry.size.width * 2, height: geometry.size.height)
-                .position(x: geometry.size.width / 2 + shift, y: geometry.size.height / 2)
-        }
-        .clipped()
+        map
+            .safeAreaPadding(.leading, max(0, 2 * shift))
+            .safeAreaPadding(.trailing, max(0, -2 * shift))
+            .safeAreaPadding(.bottom, bottomInset)
+            .clipped()
     }
 
     private var map: some View {
         Map(
             initialPosition: .region(
                 MKCoordinateRegion(
-                    // Centered south of the pin so it sits in the upper part
-                    // of the map, clear of the dissolve.
+                    // Centered north of the pin so it sits in the lower part of the usable area,
+                    // clear of the status bar.
                     center: CLLocationCoordinate2D(
-                        latitude: coordinate.latitude - 0.001,
+                        latitude: coordinate.latitude + 0.0008,
                         longitude: coordinate.longitude
                     ),
                     span: MKCoordinateSpan(
-                        latitudeDelta: 0.01,
-                        longitudeDelta: 0.01
+                        latitudeDelta: 0.0033,
+                        longitudeDelta: 0.0033
                     )
                 )
             ),
