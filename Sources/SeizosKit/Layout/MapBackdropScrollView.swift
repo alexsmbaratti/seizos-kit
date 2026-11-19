@@ -74,7 +74,7 @@ public struct MapBackdropScrollView<Content: View>: View {
                     markerTint: markerTint,
                     markerSymbol: markerSymbol,
                     shift: centerShift,
-                    bottomInset: overlap + fadeHeight
+                    bottomInset: overlap - contentOffset
                 )
                 // `initialPosition` is only read on creation, so a new location needs a new map.
                 .id(MapKey(latitude: coordinate.latitude, longitude: coordinate.longitude))
@@ -112,7 +112,8 @@ private struct OffsetMap: View {
     let markerTint: Color
     let markerSymbol: MapMarkerSymbol?
     let shift: CGFloat
-    /// How much of the map's bottom edge is covered by the content and its dissolve.
+    /// How much of the map's bottom edge is reserved so Apple's logo and Legal link sit just above
+    /// the content's top edge.
     let bottomInset: CGFloat
 
     var body: some View {
@@ -127,10 +128,10 @@ private struct OffsetMap: View {
         Map(
             initialPosition: .region(
                 MKCoordinateRegion(
-                    // Centered north of the pin so it sits in the lower part of the usable area,
-                    // clear of the status bar.
+                    // Centered just north of the pin, since the marker's glyph extends above its
+                    // coordinate, so the pin looks vertically centered in the usable area.
                     center: CLLocationCoordinate2D(
-                        latitude: coordinate.latitude + 0.0008,
+                        latitude: coordinate.latitude + 0.0002,
                         longitude: coordinate.longitude
                     ),
                     span: MKCoordinateSpan(
