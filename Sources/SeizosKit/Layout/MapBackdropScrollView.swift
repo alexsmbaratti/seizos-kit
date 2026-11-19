@@ -74,13 +74,11 @@ public struct MapBackdropScrollView<Content: View>: View {
                     markerTint: markerTint,
                     markerSymbol: markerSymbol,
                     shift: centerShift,
+                    animatesShift: hasMeasured,
                     bottomInset: overlap - contentOffset
                 )
-                // `initialPosition` is only read on creation, and a map doesn't re-center when its
-                // safe area changes later. So a new location, or a new sidebar width, needs a new
-                // map, which crossfades in.
-                .id(MapKey(latitude: coordinate.latitude, longitude: coordinate.longitude, shift: centerShift))
-                .transition(.opacity)
+                // `initialPosition` is only read on creation, so a new location needs a new map.
+                .id(MapKey(latitude: coordinate.latitude, longitude: coordinate.longitude))
             }
         ) {
             content
@@ -90,12 +88,11 @@ public struct MapBackdropScrollView<Content: View>: View {
                 let insets = proxy.safeAreaInsets
                 Color.clear
                     .onChange(of: (insets.leading - insets.trailing) / 2, initial: true) { _, shift in
+                        centerShift = shift
                         // The first measurement happens as the map appears, so it shouldn't slide.
-                        if hasMeasured {
-                            withAnimation(.smooth(duration: 0.25)) { centerShift = shift }
-                        } else {
-                            centerShift = shift
-                            hasMeasured = true
+                        // Later ones do; the map animates them itself.
+                        if !hasMeasured {
+                            Task { @MainActor in hasMeasured = true }
                         }
                     }
             }
@@ -105,26 +102,48 @@ public struct MapBackdropScrollView<Content: View>: View {
 
 /// A non-interactive map whose center sits `shift` points right of the container's center.
 ///
-/// The camera stays fixed on the marker. Reserving `2 * shift` points on one side as safe area
-/// moves the center of the map's usable area by `shift`, and the marker with it. Apple's logo and
-/// Legal link sit in the corners of that usable area, so they stay visible: they clear the part
-/// that isn't covered by a sidebar and, at the bottom, the content and its dissolve.
+/// The camera stays fixed on the marker, which sits at the center of the map view. The view is
+/// `2 * shift` points wider than the container and starts at its leading edge, so its center, and
+/// the marker with it, lands in the part that isn't covered by a sidebar. Apple's logo and Legal
+/// link sit at the bottom leading corner, which is behind the sidebar while it is open.
+///
+/// When `shift` changes, the map view is resized right away, which would make the marker jump.
+/// An offset cancels the jump and then animates to zero, so the map glides instead.
 private struct OffsetMap: View {
     let coordinate: CLLocationCoordinate2D
     let markerTitle: String
     let markerTint: Color
     let markerSymbol: MapMarkerSymbol?
     let shift: CGFloat
+    /// Whether a change to `shift` slides the map. Off until the first measurement has settled.
+    let animatesShift: Bool
     /// How much of the map's bottom edge is reserved so Apple's logo and Legal link sit just above
     /// the content's top edge.
     let bottomInset: CGFloat
 
+    /// The shift the map has finished sliding to. Lags `shift` while sliding.
+    @State private var settledShift: CGFloat = 0
+    @State private var hasSettled = false
+
     var body: some View {
-        map
-            .safeAreaPadding(.leading, max(0, 2 * shift))
-            .safeAreaPadding(.trailing, max(0, -2 * shift))
-            .safeAreaPadding(.bottom, bottomInset)
-            .clipped()
+        GeometryReader { geometry in
+            map
+                .safeAreaPadding(.bottom, bottomInset)
+                .frame(width: max(1, geometry.size.width + 2 * shift), height: geometry.size.height)
+                .offset(x: (hasSettled ? settledShift : shift) - shift)
+                // Resizing the map and cancelling its jump with the offset must both happen at
+                // once, whatever animation is in flight. Only the slide back to zero animates.
+                .transaction(value: shift) { $0.animation = nil }
+        }
+        .clipped()
+        .onChange(of: shift, initial: true) { _, newShift in
+            if animatesShift && hasSettled {
+                withAnimation(.smooth(duration: 0.25)) { settledShift = newShift }
+            } else {
+                settledShift = newShift
+                hasSettled = true
+            }
+        }
     }
 
     private var map: some View {
@@ -179,7 +198,6 @@ public enum MapMarkerSymbol {
 private struct MapKey: Hashable {
     let latitude: Double
     let longitude: Double
-    let shift: CGFloat
 }
 
 #Preview {
