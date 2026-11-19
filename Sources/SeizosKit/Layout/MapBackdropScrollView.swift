@@ -76,8 +76,11 @@ public struct MapBackdropScrollView<Content: View>: View {
                     shift: centerShift,
                     bottomInset: overlap - contentOffset
                 )
-                // `initialPosition` is only read on creation, so a new location needs a new map.
-                .id(MapKey(latitude: coordinate.latitude, longitude: coordinate.longitude))
+                // `initialPosition` is only read on creation, and a map doesn't re-center when its
+                // safe area changes later. So a new location, or a new sidebar width, needs a new
+                // map, which crossfades in.
+                .id(MapKey(latitude: coordinate.latitude, longitude: coordinate.longitude, shift: centerShift))
+                .transition(.opacity)
             }
         ) {
             content
@@ -176,6 +179,7 @@ public enum MapMarkerSymbol {
 private struct MapKey: Hashable {
     let latitude: Double
     let longitude: Double
+    let shift: CGFloat
 }
 
 #Preview {
