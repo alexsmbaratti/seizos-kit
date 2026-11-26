@@ -22,3 +22,26 @@ extension EnvironmentValues {
         horizontalSizeClass == .compact
     }
 }
+
+extension EnvironmentValues {
+    /// Whether the sidebar column of the enclosing `NavigationSplitView` is
+    /// currently on screen next to the detail column.
+    ///
+    /// `NavigationSplitView` doesn't expose this to its content, so the host sets
+    /// it from its own `NavigationSplitViewVisibility` binding with
+    /// ``SwiftUI/View/splitViewSidebarVisible(_:)``. Defaults to `false`, so
+    /// components that hide themselves while the sidebar is visible stay
+    /// available if the host never wires this up.
+    @Entry public var isSplitViewSidebarVisible = false
+}
+
+extension View {
+    /// Publishes whether the split view's sidebar is on screen to descendants via
+    /// ``SwiftUI/EnvironmentValues/isSplitViewSidebarVisible``.
+    ///
+    ///     NavigationSplitView(columnVisibility: $columnVisibility) { ... }
+    ///         .splitViewSidebarVisible(columnVisibility != .detailOnly)
+    public func splitViewSidebarVisible(_ isVisible: Bool) -> some View {
+        environment(\.isSplitViewSidebarVisible, isVisible)
+    }
+}
