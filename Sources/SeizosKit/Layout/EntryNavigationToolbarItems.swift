@@ -75,10 +75,15 @@ public struct EntryNavigationToolbarItems<Entry: Identifiable>: ToolbarContent {
             ToolbarItemGroup(placement: placement) {
                 let neighbors = neighbors
                 Button {
-                    if let previous = neighbors.previous { selection = previous }
+                    if let previous = neighbors.previous {
+                        selection = previous
+                    }
                 } label: {
                     Label(
-                        String(localized: "entryNavigation.previous", bundle: .module),
+                        String(
+                            localized: "entryNavigation.previous",
+                            bundle: .module
+                        ),
                         systemImage: "chevron.up"
                     )
                 }
@@ -87,34 +92,37 @@ public struct EntryNavigationToolbarItems<Entry: Identifiable>: ToolbarContent {
                     if let next = neighbors.next { selection = next }
                 } label: {
                     Label(
-                        String(localized: "entryNavigation.next", bundle: .module),
+                        String(
+                            localized: "entryNavigation.next",
+                            bundle: .module
+                        ),
                         systemImage: "chevron.down"
                     )
                 }
                 .disabled(neighbors.next == nil)
             }
             #if os(iOS) || os(macOS)
-            if spacerAfter {
-                EntryNavigationSpacer(placement: placement)
-            }
+                if spacerAfter {
+                    EntryNavigationSpacer(placement: placement)
+                }
             #endif
         }
     }
 }
 
 #if os(iOS) || os(macOS)
-/// `ToolbarSpacer` is iOS/macOS 26+ only, but the package supports older
-/// systems. It doesn't exist on watchOS or visionOS, so the call site skips it.
-private struct EntryNavigationSpacer: ToolbarContent {
-    let placement: ToolbarItemPlacement
+    /// `ToolbarSpacer` is iOS/macOS 26+ only, but the package supports older
+    /// systems. It doesn't exist on watchOS or visionOS, so the call site skips it.
+    private struct EntryNavigationSpacer: ToolbarContent {
+        let placement: ToolbarItemPlacement
 
-    @ToolbarContentBuilder
-    var body: some ToolbarContent {
-        if #available(iOS 26, macOS 26, *) {
-            ToolbarSpacer(.fixed, placement: placement)
+        @ToolbarContentBuilder
+        var body: some ToolbarContent {
+            if #available(iOS 26, macOS 26, *) {
+                ToolbarSpacer(.fixed, placement: placement)
+            }
         }
     }
-}
 #endif
 
 /// The entries adjacent to `current`, looked up by `id`.
@@ -123,7 +131,8 @@ struct EntryNeighbors<Entry: Identifiable> {
     let next: Entry?
 
     init(entries: [Entry], current: Entry) {
-        guard let index = entries.firstIndex(where: { $0.id == current.id }) else {
+        guard let index = entries.firstIndex(where: { $0.id == current.id })
+        else {
             previous = nil
             next = nil
             return
